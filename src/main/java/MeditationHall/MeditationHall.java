@@ -1,6 +1,7 @@
 package MeditationHall;
 
 import Dininghall.Dininghall;
+import Dininghall.TableMaster;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +20,13 @@ public class MeditationHall {
         this.dininghall = dininghall;
     }
 
-    public void initPhilosophers(){
-        for(int i = 0; i < amount; i++){
-            philosophers.add(new Philosopher(dininghall, i));
+    public void initPhilosophers(final int hungryPhils, final TableMaster tableMaster){
+        for(int i = 0; i < amount - hungryPhils; i++){
+            philosophers.add(new Philosopher(dininghall, i, tableMaster));
+        }
+        for(int i = amount - hungryPhils; i < amount; i++){
+            philosophers.add(new Philosopher(dininghall, i, 500, tableMaster));
+
         }
     }
 

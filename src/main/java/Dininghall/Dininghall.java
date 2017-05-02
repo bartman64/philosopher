@@ -23,7 +23,7 @@ public class Dininghall {
             chairs.add(new Chair(i));
             forks.add(new Fork(i));
         }
-        if(amount == 0 || amount == 1) {
+        if(amount == 1) {
             forks.add(new Fork(amount));
         }
     }

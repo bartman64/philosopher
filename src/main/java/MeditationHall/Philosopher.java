@@ -3,8 +3,11 @@ package MeditationHall;
 import Dininghall.Dininghall;
 import Dininghall.Chair;
 import Dininghall.Fork;
+import Dininghall.TableMaster;
 
-public class Philosopher extends Thread {
+import java.util.Observable;
+
+public class Philosopher extends Observable implements Runnable {
 
     private static final int MAX_EAT_COUNTER = 3;
 
@@ -12,23 +15,46 @@ public class Philosopher extends Thread {
 
     private int eatCounter;
 
+    private final TableMaster tableMaster;
+
     final private Dininghall dininghall;
 
-    public Philosopher(final Dininghall dininghall, final int id) {
+    private int medtime = 2000;
+
+
+    public Philosopher(final Dininghall dininghall, final int id, final TableMaster tableMaster) {
         this.eatCounter = 0;
         this.dininghall = dininghall;
         this.id = id;
+        this.tableMaster = tableMaster;
+        this.addObserver(tableMaster);
+    }
+
+    public Philosopher(final Dininghall dininghall, final int id, final int medTime, final TableMaster tableMaster){
+        this.eatCounter = 0;
+        this.dininghall = dininghall;
+        this.id = id;
+        this.medtime = medTime;
+        this.tableMaster = tableMaster;
+        this.addObserver(tableMaster);
     }
 
     public void run() {
         while (true) {
-            meditiern(2000);
+            meditiern(medtime);
             eat(4000);
+            notifyOb();
             if (eatCounter == MAX_EAT_COUNTER) {
+                System.out.printf("\t\t\t\t\tPhilospher [%d]  is sleeping\n", id);
                 sleep(10000);
                 eatCounter = 0;
             }
         }
+    }
+
+    private void notifyOb() {
+        setChanged();
+        notifyObservers();
     }
 
     private void eat(final int eatTime) {
@@ -76,4 +102,16 @@ public class Philosopher extends Thread {
         }
     }
 
+    public int getEatCounter() {
+        return eatCounter;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void forceSleep(){
+
+        this.sleep(10000);
+    }
 }
