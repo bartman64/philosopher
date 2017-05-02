@@ -43,7 +43,6 @@ public class Philosopher extends Observable implements Runnable {
         while (true) {
             meditiern(medtime);
             eat(4000);
-            notifyOb();
             if (eatCounter == MAX_EAT_COUNTER) {
                 System.out.printf("\t\t\t\t\tPhilospher [%d]  is sleeping\n", id);
                 sleep(10000);
@@ -73,6 +72,7 @@ public class Philosopher extends Observable implements Runnable {
                         rightFork.setTaken(false);
                         System.out.printf("\t\tPhilospher [%d] released left fork: %d\n", id, leftFork.getId());
                         System.out.printf("\tPhilospher [%d] released right fork: %d\n", id, rightFork.getId());
+                        notifyOb();
                     } else {
                         leftFork.setTaken(false);
                         System.out.printf("Philospher [%d] released left fork: %d\n", id, leftFork.getId());

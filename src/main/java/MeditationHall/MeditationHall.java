@@ -25,7 +25,7 @@ public class MeditationHall {
             philosophers.add(new Philosopher(dininghall, i, tableMaster));
         }
         for(int i = amount - hungryPhils; i < amount; i++){
-            philosophers.add(new Philosopher(dininghall, i, 500, tableMaster));
+            philosophers.add(new Philosopher(dininghall, i, 200, tableMaster));
 
         }
     }

@@ -42,7 +42,7 @@ public class Dininghall {
 
     public synchronized Fork getRightFork(final Chair chair, final int philId) {
         final Fork rightFork;
-        if (chair.getId() == amount) {
+        if (chair.getId() == amount - 1) {
             rightFork = forks.get(0);
         } else {
            rightFork = forks.get(chair.getId() + 1);
