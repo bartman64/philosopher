@@ -9,54 +9,123 @@ import java.util.Observable;
 
 public class Philosopher extends Observable implements Runnable {
 
+    /**
+     * int value indicating the max amount of times the philosopher can eat before he goes to sleep.
+     */
     private static final int MAX_EAT_COUNTER = 3;
 
+    /**
+     * int value indicating the amount of time it takes to sleep in milliseconds.
+     */
+    private static final int SLEEP_TIME_MS = 10;
+
+    /**
+     * int value indicating the amount of time it takes to eat in milliseconds.
+     */
+    private static final int EAT_TIME_MS = 1;
+
+    /**
+     * int id of an philosophers to be able to identify him later.
+     */
     private final int id;
 
+    /**
+     * int value indicating the amount of time a philosopher ate.
+     * Which will be resetted after the philosopher hit the max eat counter.
+     */
     private int eatCounter;
 
+    /**
+     * int value indicating the total amount of eat sessions.
+     */
+    private int totalEatCounter;
+
+    /**
+     * TableMaster over seeing the philosophers and blocking them, if they ate to much.
+     */
     private final TableMaster tableMaster;
 
+    /**
+     * Dininghall where the philosophers go to eat.
+     */
     final private Dininghall dininghall;
 
-    private int medtime = 2000;
+    /**
+     * int value indicating the amount if time it takes to meditate in milliseconds.
+     */
+    private int medtime_ms = 5;
 
+    private boolean threadState;
 
+    /**
+     * Constructor for the philosopher that has a dining hall to eat,
+     * an id to be identified and a table master who over sees the eating..
+     *
+     * @param dininghall  Dininghall where the philosopher go to eat
+     * @param id          Id indicating its identity
+     * @param tableMaster TableMaster overseeing the process of eating
+     */
     public Philosopher(final Dininghall dininghall, final int id, final TableMaster tableMaster) {
         this.eatCounter = 0;
+        this.totalEatCounter = 0;
         this.dininghall = dininghall;
         this.id = id;
         this.tableMaster = tableMaster;
         this.addObserver(tableMaster);
+        threadState = true;
     }
 
-    public Philosopher(final Dininghall dininghall, final int id, final int medTime, final TableMaster tableMaster){
+
+
+    /**
+     * Constructor for the hungry philosophers. It gets in addition the time it takes him to meditate,
+     * which will be lower then the time for the others
+     *
+     * @param dininghall  Dininghall where the philosopher go to eat
+     * @param id          Id indicating its identity
+     * @param medTime     time it takes him to meditate in milliseconds
+     * @param tableMaster TableMaster overseeing the process of eating
+     */
+    public Philosopher(final Dininghall dininghall, final int id, final int medTime, final TableMaster tableMaster) {
         this.eatCounter = 0;
         this.dininghall = dininghall;
         this.id = id;
-        this.medtime = medTime;
+        this.medtime_ms = medTime;
         this.tableMaster = tableMaster;
         this.addObserver(tableMaster);
+        threadState = true;
+
     }
 
+    /**
+     * The process of meditating, eating and sleeping if the max eat counter is surpassed.
+     */
     public void run() {
-        while (true) {
-            meditiern(medtime);
-            eat(4000);
+        while (threadState) {
+            meditate();
+            eat();
             if (eatCounter == MAX_EAT_COUNTER) {
                 System.out.printf("\t\t\t\t\tPhilospher [%d]  is sleeping\n", id);
-                sleep(10000);
+                sleep();
                 eatCounter = 0;
             }
         }
     }
 
+    /**
+     * Notifies the table master that the philospher ate.
+     */
     private void notifyOb() {
         setChanged();
         notifyObservers();
     }
 
-    private void eat(final int eatTime) {
+    /**
+     * This method simulates the process of eating.
+     * Finding an emptry chair, trying to get both forks and then be able to eat.
+     * It prints out status messages after each step.
+     */
+    private void eat() {
         try {
             final Chair chair = dininghall.getChair(id);
             if (chair != null) {
@@ -66,8 +135,9 @@ public class Philosopher extends Observable implements Runnable {
                     final Fork rightFork = dininghall.getRightFork(chair, id);
                     if (rightFork != null) {
                         System.out.printf("\t\t\tPhilospher [%d]  is eating\n", id);
-                        Thread.sleep(eatTime);
+                        Thread.sleep(EAT_TIME_MS);
                         eatCounter++;
+                        totalEatCounter++;
                         leftFork.setTaken(false);
                         rightFork.setTaken(false);
                         System.out.printf("\t\tPhilospher [%d] released left fork: %d\n", id, leftFork.getId());
@@ -86,32 +156,45 @@ public class Philosopher extends Observable implements Runnable {
         }
     }
 
-    private void meditiern(final int medTime) {
+    /**
+     * This method sets the thread to sleep to simulate the meditation.
+     */
+    private void meditate() {
         try {
-            Thread.sleep(medTime);
+            Thread.sleep(medtime_ms);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private void sleep(final int sleepTime) {
+    /**
+     * This method sets the thread to sleep to simulate sleeping.
+     */
+    private void sleep() {
         try {
-            Thread.sleep(sleepTime);
+            Thread.sleep(SLEEP_TIME_MS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public int getEatCounter() {
-        return eatCounter;
-    }
-
+    /**
+     * Gets the id from the philosopher.
+     */
     public int getId() {
         return id;
     }
 
-    public void forceSleep(){
+    //TODO IS this force sleep necessary?
+    public void forceSleep() {
+        this.sleep();
+    }
 
-        this.sleep(10000);
+    public int getTotalEatCounter() {
+        return totalEatCounter;
+    }
+
+    public synchronized void setThreadState(boolean threadState) {
+        this.threadState = threadState;
     }
 }

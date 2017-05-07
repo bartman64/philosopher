@@ -10,21 +10,21 @@ public class Dininghall {
 
     private final List<Fork> forks;
 
-    private final int amount;
+    private final int numberOfPlaces;
 
-    public Dininghall( int amount) {
+    public Dininghall(final int numberOfPlaces) {
         this.chairs = new ArrayList<Chair>();
         this.forks = new ArrayList<Fork>();
-        this.amount = amount;
+        this.numberOfPlaces = numberOfPlaces;
     }
 
     public void initHall() {
-        for (int i = 0; i < amount; i++) {
+        for (int i = 0; i < numberOfPlaces; i++) {
             chairs.add(new Chair(i));
             forks.add(new Fork(i));
         }
-        if(amount == 1) {
-            forks.add(new Fork(amount));
+        if(numberOfPlaces == 1) {
+            forks.add(new Fork(numberOfPlaces));
         }
     }
 
@@ -42,7 +42,7 @@ public class Dininghall {
 
     public synchronized Fork getRightFork(final Chair chair, final int philId) {
         final Fork rightFork;
-        if (chair.getId() == amount - 1) {
+        if (chair.getId() == numberOfPlaces - 1) {
             rightFork = forks.get(0);
         } else {
            rightFork = forks.get(chair.getId() + 1);
