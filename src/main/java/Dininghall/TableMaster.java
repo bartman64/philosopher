@@ -8,18 +8,10 @@ public class TableMaster extends Thread implements Observer {
 
     private final Map<Philosopher, Integer> phil2EatCount;
 
-    private boolean threadState;
-
     public TableMaster() {
         phil2EatCount = new HashMap<>();
-        threadState = true;
     }
 
-    public void run() {
-        while (threadState) {
-
-        }
-    }
 
     public void initMap(List<Philosopher> philosophers) {
         for (Philosopher phil : philosophers) {
@@ -53,9 +45,5 @@ public class TableMaster extends Thread implements Observer {
             }
         }
 
-    }
-
-    public void setThreadState(boolean threadState) {
-        this.threadState = threadState;
     }
 }

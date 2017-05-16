@@ -41,11 +41,6 @@ public class Philosopher extends Observable implements Runnable {
     private int totalEatCounter;
 
     /**
-     * TableMaster over seeing the philosophers and blocking them, if they ate to much.
-     */
-    private final TableMaster tableMaster;
-
-    /**
      * Dininghall where the philosophers go to eat.
      */
     final private Dininghall dininghall;
@@ -70,11 +65,9 @@ public class Philosopher extends Observable implements Runnable {
         this.totalEatCounter = 0;
         this.dininghall = dininghall;
         this.id = id;
-        this.tableMaster = tableMaster;
         this.addObserver(tableMaster);
         threadState = true;
     }
-
 
 
     /**
@@ -91,7 +84,6 @@ public class Philosopher extends Observable implements Runnable {
         this.dininghall = dininghall;
         this.id = id;
         this.medtime_ms = medTime;
-        this.tableMaster = tableMaster;
         this.addObserver(tableMaster);
         threadState = true;
 

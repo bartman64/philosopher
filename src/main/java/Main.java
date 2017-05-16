@@ -25,21 +25,17 @@ public class Main {
         final List<Thread> threadList = new ArrayList<>();
 
         for (Philosopher philosopher : meditationHall.getPhilosophers()) {
-            threadList.add(new Thread(philosopher));
-        }
-
-        for (Thread thread : threadList) {
-            thread.setDaemon(true);
+            final Thread thread = new Thread(philosopher);
+            threadList.add(thread);
             thread.start();
         }
 
-        while (System.currentTimeMillis() / 1000 - millis != 10) {
+        while (System.currentTimeMillis() / 1000 - millis != 5) {
         }
 
         for (Philosopher philosopher : meditationHall.getPhilosophers()) {
             philosopher.setThreadState(false);
         }
-        tableMaster.setThreadState(false);
 
         for (Thread thread : threadList) {
             try {
