@@ -1,16 +1,13 @@
 package Server;
 
-import Client.Client;
-import Dininghall.Chair;
-
 import java.rmi.NotBoundException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 
 import Client.ClientControl;
+import Dininghall.ChairRemote;
 
 public class Server implements ServerControl {
 
@@ -48,7 +45,13 @@ public class Server implements ServerControl {
     }
 
     @Override
-    public Chair searchFreeChair() throws RemoteException {
+    public ChairRemote searchFreeChair(final int philosoperId) throws RemoteException {
+        for (final ClientControl client : clients) {
+            final ChairRemote chair = client.searchEmptyChair(philosoperId);
+            if (chair != null) {
+                return chair;
+            }
+        }
         return null;
     }
 
@@ -72,22 +75,32 @@ public class Server implements ServerControl {
      * This method initializes every client in the list.
      * Calculates the distribution rate of seats and philosophers between the amount of clients.
      */
-    public void initClients() {
+    public void initClients(final Registry registry) {
         int deltaSeats = totalSeats;
         int deltaPhilosophers = totalPhilosophers;
         int numberOfSeats = totalSeats / counter;
         int numberOfPhilosophers = totalPhilosophers / counter;
         for (int i = 0; i < clients.size(); i++) {
             try {
-                clients.get(i).init(numberOfPhilosophers, numberOfSeats);
+                clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
             deltaPhilosophers -= numberOfPhilosophers;
             //The last client gets the rest of the seats an philosophers.
-            numberOfPhilosophers = deltaPhilosophers - numberOfPhilosophers < 0 || i == counter -2 ? deltaPhilosophers : numberOfPhilosophers;
+            numberOfPhilosophers = deltaPhilosophers - numberOfPhilosophers < 0 || i == counter - 2 ? deltaPhilosophers : numberOfPhilosophers;
             deltaSeats -= numberOfSeats;
-            numberOfSeats = deltaSeats - numberOfSeats < 0 || i == counter - 2  ? deltaPhilosophers : numberOfSeats;
+            numberOfSeats = deltaSeats - numberOfSeats < 0 || i == counter - 2 ? deltaPhilosophers : numberOfSeats;
+        }
+    }
+
+    public void startClients() {
+        for (final ClientControl client : clients) {
+            try {
+                client.startClient();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
     }
 

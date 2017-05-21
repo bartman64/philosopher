@@ -18,7 +18,8 @@ public class ServerMain {
             Thread.sleep(10000);
             System.out.println(Arrays.toString(registry.list()));
             server.fillClientList(registry);
-            server.initClients();
+            server.initClients(registry);
+            server.startClients();
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {
             e.printStackTrace();
         }

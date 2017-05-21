@@ -1,13 +1,20 @@
 package MeditationHall;
 
+import Client.Client;
 import Dininghall.Dininghall;
+import Dininghall.ChairRemote;
 import Dininghall.Chair;
 import Dininghall.Fork;
 import Dininghall.TableMaster;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.rmi.RemoteException;
 import java.util.Observable;
 
 public class Philosopher extends Observable implements Runnable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Philosopher.class);
 
     /**
      * int value indicating the max amount of times the philosopher can eat before he goes to sleep.
@@ -97,7 +104,7 @@ public class Philosopher extends Observable implements Runnable {
             meditate();
             eat();
             if (eatCounter == MAX_EAT_COUNTER) {
-                System.out.printf("\t\t\t\t\tPhilospher [%d]  is sleeping\n", id);
+                LOGGER.info("\t\t\t\t\tPhilospher [" + id + "]  is sleeping\n");
                 sleep();
                 eatCounter = 0;
             }
@@ -119,29 +126,37 @@ public class Philosopher extends Observable implements Runnable {
      */
     private void eat() {
         try {
-            final Chair chair = dininghall.getChair(id);
+            ChairRemote chair = dininghall.getChair(id);
+            if (chair == null) {
+                chair = dininghall.clientSearch(id);
+                LOGGER.info("Remote Chair aquired");
+            }
             if (chair != null) {
                 final Fork leftFork = dininghall.getLeftFork(chair, id);
                 if (leftFork != null) {
 
                     final Fork rightFork = dininghall.getRightFork(chair, id);
                     if (rightFork != null) {
-                        System.out.printf("\t\t\tPhilospher [%d]  is eating\n", id);
+                        LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating\n");
                         Thread.sleep(EAT_TIME_MS);
                         eatCounter++;
                         totalEatCounter++;
                         leftFork.setTaken(false);
                         rightFork.setTaken(false);
-                        System.out.printf("\t\tPhilospher [%d] released left fork: %d\n", id, leftFork.getId());
-                        System.out.printf("\tPhilospher [%d] released right fork: %d\n", id, rightFork.getId());
+                        LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
+                        LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
                         notifyOb();
                     } else {
                         leftFork.setTaken(false);
-                        System.out.printf("Philospher [%d] released left fork: %d\n", id, leftFork.getId());
+                        LOGGER.info("Philospher [" + id + "] released left fork: " + leftFork.getId());
                     }
                 }
-                chair.setTaken(false);
-                System.out.printf("Philospher [%d] leaves table\n", id);
+                try {
+                    chair.setTaken(false);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                LOGGER.info("Philospher [" + id + "] leaves table\n");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

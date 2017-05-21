@@ -1,6 +1,8 @@
 package Dininghall;
 
-public class Chair {
+import java.rmi.Remote;
+
+public class Chair implements ChairRemote {
 
     private boolean taken;
 
@@ -10,6 +12,7 @@ public class Chair {
         this.taken = false;
         this.id = id;
     }
+
 
     public void setTaken(boolean taken) {
         this.taken = taken;

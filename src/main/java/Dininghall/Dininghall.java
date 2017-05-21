@@ -1,10 +1,24 @@
 package Dininghall;
 
 
+import Client.Client;
+import Client.ClientControl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.rmi.AlreadyBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
+
+
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Dininghall {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Dininghall.class);
 
     /**
      * List of chairs in th dining hall.
@@ -22,25 +36,37 @@ public class Dininghall {
     private final int numberOfPlaces;
 
     /**
+     * ClientControl needed to contact the server for seats.
+     */
+    private final Client client;
+
+    /**
      * Constructor for the dining hall.
      * Initializes with the number of places matching amount of chairs and forks.
      *
      * @param numberOfPlaces number of places the dining hall can have
      */
-    public Dininghall(final int numberOfPlaces) {
+    public Dininghall(final int numberOfPlaces, final Client client) {
         this.chairs = new ArrayList<Chair>();
         this.forks = new ArrayList<Fork>();
         this.numberOfPlaces = numberOfPlaces;
+        this.client = client;
     }
 
     /**
      * This method initializes the hall with chairs and forks.
      * When the number of places equals one, an extra fork will be created.
      */
-    public void initHall() {
+    public void initHall(final Registry register) {
         for (int i = 0; i < numberOfPlaces; i++) {
             chairs.add(new Chair(i));
             forks.add(new Fork(i));
+            try {
+                ChairRemote chair = (ChairRemote) UnicastRemoteObject.exportObject(chairs.get(i), 0);
+                register.bind("Chair" + i, chair);
+            } catch (RemoteException | AlreadyBoundException e) {
+                e.printStackTrace();
+            }
         }
         if (numberOfPlaces == 1) {
             forks.add(new Fork(numberOfPlaces));
@@ -56,16 +82,22 @@ public class Dininghall {
      *               For logging used.
      * @return the left fork if not already taken, null otherwise
      */
-    public synchronized Fork getLeftFork(final Chair chair, final int philId) {
-        final Fork leftFork = forks.get(chair.getId());
-        if (leftFork.isTaken()) {
-            return null;
-        } else {
-            leftFork.setTaken(true);
-            System.out.printf("\tPhilospher [%d] took left fork: %d\n", philId, leftFork.getId());
-            return leftFork;
+    public synchronized Fork getLeftFork(final ChairRemote chair, final int philId) {
+        final Fork leftFork;
+        try {
+            leftFork = forks.get(chair.getId());
+            if (leftFork.isTaken()) {
+                return null;
+            } else {
+                leftFork.setTaken(true);
+                LOGGER.info("\tPhilospher [%d] took left fork: %d\n", philId, leftFork.getId());
+                return leftFork;
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
 
+        return null;
     }
 
     /**
@@ -77,22 +109,27 @@ public class Dininghall {
      *               For logging used.
      * @return the right fork if not already taken, null otherwise
      */
-    public synchronized Fork getRightFork(final Chair chair, final int philId) {
+    public synchronized Fork getRightFork(final ChairRemote chair, final int philId) {
         final Fork rightFork;
         //If the current chair is the last chair in the list
         //The right fork is the first fork in the list
-        if (chair.getId() == numberOfPlaces - 1) {
-            rightFork = forks.get(0);
-        } else {
-            rightFork = forks.get(chair.getId() + 1);
+        try {
+            if (chair.getId() == numberOfPlaces - 1) {
+                rightFork = forks.get(0);
+            } else {
+                rightFork = forks.get(chair.getId() + 1);
+            }
+            if (rightFork.isTaken()) {
+                return null;
+            } else {
+                LOGGER.info("\t\tPhilospher [" + philId + "] took right fork: " + rightFork.getId());
+                rightFork.setTaken(true);
+                return rightFork;
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
-        if (rightFork.isTaken()) {
-            return null;
-        } else {
-            System.out.printf("\t\tPhilospher [%d] took right fork: %d\n", philId, rightFork.getId());
-            rightFork.setTaken(true);
-            return rightFork;
-        }
+        return null;
     }
 
     /**
@@ -108,11 +145,15 @@ public class Dininghall {
         for (Chair chair : chairs) {
             if (!chair.isTaken() && !forks.get(chair.getId()).isTaken()) {
                 chair.setTaken(true);
-                System.out.printf("Philospher [%d] took chair: %d\n", philId, chair.getId());
+                LOGGER.info("Philospher [" + philId + "] took chair: " + chair.getId());
                 return chair;
             }
         }
         return null;
+    }
+
+    public ChairRemote clientSearch(final int philosopherId) {
+        return client.searchForEmptySeat(philosopherId);
     }
 
 }

@@ -20,6 +20,7 @@ public class ClientMain {
             final int clientId = server.getId();
             registry.bind("Client" + clientId, clientSkelet);
             client.setId(clientId);
+            client.setServer(server);
 
         } catch (RemoteException | NotBoundException | AlreadyBoundException e) {
             e.printStackTrace();

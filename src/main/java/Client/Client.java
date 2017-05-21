@@ -2,13 +2,16 @@ package Client;
 
 
 import Dininghall.Dininghall;
+import Dininghall.ChairRemote;
 import Dininghall.TableMaster;
 import MeditationHall.MeditationHall;
 import MeditationHall.Philosopher;
+import Server.ServerControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +50,12 @@ public class Client implements ClientControl {
     private MeditationHall meditationHall;
 
     /**
+     * ServerControl server for connecting to the other clients.
+     */
+    private ServerControl server;
+
+
+    /**
      * Tablemaster over seeing the philosophers
      * and sends those who ate to much into a longer sleeping phase
      */
@@ -67,12 +76,12 @@ public class Client implements ClientControl {
     }
 
     @Override
-    public void init(final int numberOfPhilosophers, final int numberOfSeats) throws RemoteException {
+    public void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry) throws RemoteException {
         this.numberOfPhilosophers = numberOfPhilosophers;
         this.numberOfSeats = numberOfSeats;
 
-        dininghall = new Dininghall(numberOfSeats);
-        dininghall.initHall();
+        dininghall = new Dininghall(numberOfSeats, this);
+        dininghall.initHall(registry);
         meditationHall = new MeditationHall(numberOfPhilosophers, dininghall);
         tableMaster = new TableMaster();
         meditationHall.initPhilosophers(0, tableMaster);
@@ -81,15 +90,37 @@ public class Client implements ClientControl {
                 numberOfSeats + "] and  Philosopher[" + numberOfPhilosophers + "]\n");
     }
 
-    /**
-     * This method start the runnable philosophers and the tablemaster thread.
-     */
-    private void startClient() {
+    @Override
+    public void startClient() {
         tableMaster.start();
         for (Philosopher philosopher : meditationHall.getPhilosophers()) {
             final Thread thread = new Thread(philosopher);
             threads.add(thread);
             thread.start();
         }
+    }
+
+    @Override
+    public ChairRemote searchEmptyChair(final int philosophersId) throws RemoteException {
+        return dininghall.getChair(philosophersId);
+    }
+
+    public void setServer(ServerControl server) {
+        this.server = server;
+    }
+
+    /**
+     * This method calls the server to search for free seats on the other clients.
+     *
+     * @return empty chair for the philosopher,
+     * if every chair is occupied null gets returned
+     */
+    public ChairRemote searchForEmptySeat(final int philospherId) {
+        try {
+            return server.searchFreeChair(philospherId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

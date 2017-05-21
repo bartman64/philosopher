@@ -1,3 +1,4 @@
+/*
 import Dininghall.Dininghall;
 import MeditationHall.MeditationHall;
 import MeditationHall.Philosopher;
@@ -50,3 +51,4 @@ public class Main {
         }
     }
 }
+*/

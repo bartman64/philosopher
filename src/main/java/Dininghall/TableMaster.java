@@ -1,10 +1,14 @@
 package Dininghall;
 
 import MeditationHall.Philosopher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class TableMaster extends Thread implements Observer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TableMaster.class);
 
     private final Map<Philosopher, Integer> phil2EatCount;
 
@@ -35,11 +39,11 @@ public class TableMaster extends Thread implements Observer {
                 entries.setValue(entries.getValue() + 1);
                 int currConsumption = entries.getValue();
                 int consumptionDiff = currConsumption - avgConsumption;
-                System.out.println("AverageConsumption: " + avgConsumption);
-                System.out.println("ConsumptionDiff: " + consumptionDiff);
-                System.out.println("Philosopher[" + entries.getKey().getId() + "] has eaten " + currConsumption + " times in a row!");
+                LOGGER.info("AverageConsumption: " + avgConsumption);
+                LOGGER.info("ConsumptionDiff: " + consumptionDiff);
+                LOGGER.info("Philosopher[" + entries.getKey().getId() + "] has eaten " + currConsumption + " times in a row!");
                 if (consumptionDiff >= 5) {
-                    System.out.println("[*] Philosopher[" + entries.getKey().getId() + "] is forced to sleep! [*]");
+                    LOGGER.info("[*] Philosopher[" + entries.getKey().getId() + "] is forced to sleep! [*]");
                     entries.getKey().forceSleep();
                 }
             }

@@ -1,11 +1,12 @@
 package Server;
 
-import Dininghall.Chair;
+import Dininghall.ChairRemote;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface ServerControl extends Remote{
+public interface ServerControl extends Remote {
     int getId() throws RemoteException;
-    Chair searchFreeChair() throws RemoteException;
+
+    ChairRemote searchFreeChair(final int philosoperId) throws RemoteException;
 }
