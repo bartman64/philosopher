@@ -19,6 +19,15 @@ public class Chair {
         return taken;
     }
 
+    public synchronized boolean aquireChair(){
+        boolean aquired = false;
+        if(!this.taken) {
+            this.taken = true;
+            aquired = true;
+        }
+        return aquired;
+    }
+
     public int getId() {
         return id;
     }

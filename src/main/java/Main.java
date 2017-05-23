@@ -18,11 +18,11 @@ public class Main {
         final MeditationHall meditationHall = new MeditationHall(numberOfPhilosophers, dininghall);
         final TableMaster tableMaster = new TableMaster();
 
-        meditationHall.initPhilosophers(1, tableMaster);
+        meditationHall.initPhilosophers(0, tableMaster);
         tableMaster.initMap(meditationHall.getPhilosophers());
         tableMaster.start();
 
-        final List<Thread> threadList = new ArrayList<>();
+        final List<Thread> threadList = new ArrayList<Thread>();
 
         for (Philosopher philosopher : meditationHall.getPhilosophers()) {
             final Thread thread = new Thread(philosopher);

@@ -117,7 +117,7 @@ public class Philosopher extends Observable implements Runnable {
      * Finding an emptry chair, trying to get both forks and then be able to eat.
      * It prints out status messages after each step.
      */
-    private void eat() {
+    public void eat() {
         try {
             final Chair chair = dininghall.getChair(id);
             if (chair != null) {
@@ -142,6 +142,8 @@ public class Philosopher extends Observable implements Runnable {
                 }
                 chair.setTaken(false);
                 System.out.printf("Philospher [%d] leaves table\n", id);
+            } else {
+                dininghall.addPhilToQueue(this);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

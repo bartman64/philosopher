@@ -1,6 +1,8 @@
 package Dininghall;
 
 
+import MeditationHall.Philosopher;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,11 @@ public class Dininghall {
     private final List<Fork> forks;
 
     /**
+     * List for waiting philosophers.
+     */
+    private final List<Philosopher> waitingPhils;
+
+    /**
      * int number of places.
      */
     private final int numberOfPlaces;
@@ -30,6 +37,7 @@ public class Dininghall {
     public Dininghall(final int numberOfPlaces) {
         this.chairs = new ArrayList<Chair>();
         this.forks = new ArrayList<Fork>();
+        this.waitingPhils = new ArrayList<>();
         this.numberOfPlaces = numberOfPlaces;
     }
 
@@ -56,12 +64,11 @@ public class Dininghall {
      *               For logging used.
      * @return the left fork if not already taken, null otherwise
      */
-    public synchronized Fork getLeftFork(final Chair chair, final int philId) {
+    public Fork getLeftFork(final Chair chair, final int philId) {
         final Fork leftFork = forks.get(chair.getId());
-        if (leftFork.isTaken()) {
+        if (!leftFork.aquireFork()) {
             return null;
         } else {
-            leftFork.setTaken(true);
             System.out.printf("\tPhilospher [%d] took left fork: %d\n", philId, leftFork.getId());
             return leftFork;
         }
@@ -77,7 +84,7 @@ public class Dininghall {
      *               For logging used.
      * @return the right fork if not already taken, null otherwise
      */
-    public synchronized Fork getRightFork(final Chair chair, final int philId) {
+    public Fork getRightFork(final Chair chair, final int philId) {
         final Fork rightFork;
         //If the current chair is the last chair in the list
         //The right fork is the first fork in the list
@@ -86,11 +93,10 @@ public class Dininghall {
         } else {
             rightFork = forks.get(chair.getId() + 1);
         }
-        if (rightFork.isTaken()) {
+        if (!rightFork.aquireFork()) {
             return null;
         } else {
             System.out.printf("\t\tPhilospher [%d] took right fork: %d\n", philId, rightFork.getId());
-            rightFork.setTaken(true);
             return rightFork;
         }
     }
@@ -104,15 +110,25 @@ public class Dininghall {
      *               For logging used.
      * @return chair if not taken and has left fork, null otherwise
      */
-    public synchronized Chair getChair(final int philId) {
+    public Chair getChair(final int philId) {
         for (Chair chair : chairs) {
-            if (!chair.isTaken() && !forks.get(chair.getId()).isTaken()) {
-                chair.setTaken(true);
+            if (chair.aquireChair() && !forks.get(chair.getId()).isTaken()) {
                 System.out.printf("Philospher [%d] took chair: %d\n", philId, chair.getId());
                 return chair;
             }
         }
         return null;
+    }
+
+    /**
+     * Adds an philosopher to the waiting queue
+     * @param philosopher
+     */
+    public synchronized void addPhilToQueue(final Philosopher philosopher) {
+        if(waitingPhils.size() < numberOfPlaces/2) {
+            waitingPhils.add(philosopher);
+            System.out.printf("Adding philosopher [%d] to the waiting queue...\n", philosopher.getId());
+        }
     }
 
 }
