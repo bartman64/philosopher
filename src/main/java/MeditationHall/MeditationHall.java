@@ -43,8 +43,8 @@ public class MeditationHall {
      * @param hungryPhils indicates how many hungry philosophers have to be created
      * @param tableMaster table master needed to be able to over see the amount of times the philosophers ate.
      */
-    public void initPhilosophers(final int hungryPhils, final TableMaster tableMaster) {
-        for (int i = 0; i < numberOfPhilosophers - hungryPhils; i++) {
+    public void initPhilosophers(final int hungryPhils, final TableMaster tableMaster, final int startValue) {
+        for (int i = startValue; i < startValue + numberOfPhilosophers - hungryPhils; i++) {
             philosophers.add(new Philosopher(dininghall, i, tableMaster));
         }
         for (int i = numberOfPhilosophers - hungryPhils; i < numberOfPhilosophers; i++) {

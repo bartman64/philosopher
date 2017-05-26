@@ -82,7 +82,7 @@ public class Server implements ServerControl {
         int numberOfPhilosophers = totalPhilosophers / counter;
         for (int i = 0; i < clients.size(); i++) {
             try {
-                clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry);
+                clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry, i);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }

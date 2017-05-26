@@ -1,7 +1,5 @@
 package Dininghall;
 
-import java.rmi.Remote;
-
 public class Chair implements ChairRemote {
 
     private boolean taken;

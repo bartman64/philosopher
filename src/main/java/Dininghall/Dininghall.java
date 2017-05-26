@@ -57,8 +57,8 @@ public class Dininghall {
      * This method initializes the hall with chairs and forks.
      * When the number of places equals one, an extra fork will be created.
      */
-    public void initHall(final Registry register) {
-        for (int i = 0; i < numberOfPlaces; i++) {
+    public void initHall(final Registry register, final int startValue) {
+        for (int i = startValue; i < startValue + numberOfPlaces; i++) {
             chairs.add(new Chair(i));
             forks.add(new Fork(i));
             try {
