@@ -1,7 +1,7 @@
 package Dininghall;
 
 
-public class Fork {
+public class Fork implements ForkRemote {
 
     private boolean taken;
 

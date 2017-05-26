@@ -63,7 +63,9 @@ public class Dininghall {
             forks.add(new Fork(i));
             try {
                 ChairRemote chair = (ChairRemote) UnicastRemoteObject.exportObject(chairs.get(i), 0);
+                ForkRemote fork = (ForkRemote) UnicastRemoteObject.exportObject(forks.get(i), 0);
                 register.bind("Chair" + i, chair);
+                register.bind("Fork" + i, fork);
             } catch (RemoteException | AlreadyBoundException e) {
                 e.printStackTrace();
             }
