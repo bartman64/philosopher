@@ -19,11 +19,6 @@ public class Dininghall {
     private final List<Fork> forks;
 
     /**
-     * List for waiting philosophers.
-     */
-    private final List<Philosopher> waitingPhils;
-
-    /**
      * int number of places.
      */
     private final int numberOfPlaces;
@@ -37,7 +32,6 @@ public class Dininghall {
     public Dininghall(final int numberOfPlaces) {
         this.chairs = new ArrayList<Chair>();
         this.forks = new ArrayList<Fork>();
-        this.waitingPhils = new ArrayList<>();
         this.numberOfPlaces = numberOfPlaces;
     }
 
@@ -112,7 +106,7 @@ public class Dininghall {
      */
     public Chair getChair(final int philId) {
         for (Chair chair : chairs) {
-            if (chair.aquireChair() && !forks.get(chair.getId()).isTaken()) {
+            if (chair.aquireChair()) {
                 System.out.printf("Philospher [%d] took chair: %d\n", philId, chair.getId());
                 return chair;
             }
@@ -120,15 +114,13 @@ public class Dininghall {
         return null;
     }
 
-    /**
-     * Adds an philosopher to the waiting queue
-     * @param philosopher
-     */
-    public synchronized void addPhilToQueue(final Philosopher philosopher) {
-        if(waitingPhils.size() < numberOfPlaces/2) {
-            waitingPhils.add(philosopher);
-            System.out.printf("Adding philosopher [%d] to the waiting queue...\n", philosopher.getId());
+    public Chair getQueueChair(final Philosopher philosopher){
+        for(Chair chair : chairs){
+            if(chair.aquireQueuedChair(philosopher)){
+                return chair;
+            }
         }
+        return null;
     }
 
 }

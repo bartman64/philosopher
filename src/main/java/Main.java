@@ -10,8 +10,8 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         long millis = System.currentTimeMillis() / 1000;
-        final int numberOfPhilosophers = 5;
-        final int numberOfPlaces = 5;
+        final int numberOfPhilosophers = 10;
+        final int numberOfPlaces = 2;
 
         final Dininghall dininghall = new Dininghall(numberOfPlaces);
         dininghall.initHall();

@@ -50,6 +50,11 @@ public class Philosopher extends Observable implements Runnable {
      */
     private int medtime_ms = 5;
 
+    /**
+     * Boolean to check wether the current Philospher is waiting.
+     */
+    private boolean waiting = false;
+
     private boolean threadState;
 
     /**
@@ -118,14 +123,36 @@ public class Philosopher extends Observable implements Runnable {
      * It prints out status messages after each step.
      */
     public void eat() {
+        System.out.printf("Philsopher [%d] searching for empty chair\n", this.getId());
         try {
-            final Chair chair = dininghall.getChair(id);
+            boolean eaten = false;
+            int searchCount = 0;
+            Chair chair = dininghall.getChair(id);
+/*            while(searchCount < 3 && chair == null){
+                Thread.sleep(5);
+                System.out.printf("Philosopher [%d] still searching...\n", this.getId());
+                searchCount++;
+                chair = dininghall.getChair(id);
+            }*/
+            if(chair == null){
+                if((chair = dininghall.getQueueChair(this)) != null){
+                    waiting = true;
+                    synchronized (chair){
+                        System.out.printf("Philosopher [%d] waiting for notification\n", id);
+                        while(waiting) {
+                            chair.wait();
+                        }
+                    }
+                    System.out.printf("Philosopher [%d] got notified by chair [%d]\n",id, chair.getId());
+                    chair = dininghall.getChair(id);
+                }
+            }
             if (chair != null) {
                 final Fork leftFork = dininghall.getLeftFork(chair, id);
                 if (leftFork != null) {
-
                     final Fork rightFork = dininghall.getRightFork(chair, id);
                     if (rightFork != null) {
+                        eaten = true;
                         System.out.printf("\t\t\tPhilospher [%d]  is eating\n", id);
                         Thread.sleep(EAT_TIME_MS);
                         eatCounter++;
@@ -134,16 +161,15 @@ public class Philosopher extends Observable implements Runnable {
                         rightFork.setTaken(false);
                         System.out.printf("\t\tPhilospher [%d] released left fork: %d\n", id, leftFork.getId());
                         System.out.printf("\tPhilospher [%d] released right fork: %d\n", id, rightFork.getId());
-                        notifyOb();
                     } else {
                         leftFork.setTaken(false);
                         System.out.printf("Philospher [%d] released left fork: %d\n", id, leftFork.getId());
                     }
                 }
                 chair.setTaken(false);
+                if(eaten)
+                    notifyOb();
                 System.out.printf("Philospher [%d] leaves table\n", id);
-            } else {
-                dininghall.addPhilToQueue(this);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -177,6 +203,10 @@ public class Philosopher extends Observable implements Runnable {
      */
     public int getId() {
         return id;
+    }
+
+    public void setWaitingStatus(boolean status){
+        this.waiting = status;
     }
 
     //TODO IS this force sleep necessary?
