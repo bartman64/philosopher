@@ -4,6 +4,7 @@ package Client;
 import Dininghall.Dininghall;
 import Dininghall.ChairRemote;
 import Dininghall.TableMaster;
+import Dininghall.ForkRemote;
 import MeditationHall.MeditationHall;
 import MeditationHall.Philosopher;
 import Server.ServerControl;
@@ -28,6 +29,10 @@ public class Client implements ClientControl {
      * Int value for the amount of philosophers in the meditation hall.
      */
     private int numberOfPhilosophers;
+
+    public int getNumberOfSeats() {
+        return numberOfSeats;
+    }
 
     /**
      * Int value for the amount of seats in the dining hall.
@@ -84,6 +89,7 @@ public class Client implements ClientControl {
         dininghall.initHall(registry, startIndicez);
         meditationHall = new MeditationHall(numberOfPhilosophers, dininghall);
         tableMaster = new TableMaster();
+        LOGGER.info(String.valueOf(startIndicez));
         meditationHall.initPhilosophers(0, tableMaster, startIndicez);
         tableMaster.initMap(meditationHall.getPhilosophers());
         LOGGER.info("Client[" + getId() + "] finished initialization with Seats[" +
@@ -118,6 +124,21 @@ public class Client implements ClientControl {
     public ChairRemote searchForEmptySeat(final int philospherId) {
         try {
             return server.searchFreeChair(philospherId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public ForkRemote getRightRemoteFork(final ChairRemote chair, final int philId) throws RemoteException {
+        return dininghall.getRightFork(chair, philId);
+    }
+
+    @Override
+    public ForkRemote searchRemoteRightFork(final ChairRemote chair, final int philId) {
+        try {
+            return server.getRemoteRightFork(chair, this, philId);
         } catch (RemoteException e) {
             e.printStackTrace();
         }

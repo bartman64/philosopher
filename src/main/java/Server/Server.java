@@ -8,9 +8,14 @@ import java.util.List;
 
 import Client.ClientControl;
 import Dininghall.ChairRemote;
+import Dininghall.ForkRemote;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Server implements ServerControl {
 
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
     /**
      * Int counter counting the number of clients.
      * Also used to set the id for each client.
@@ -104,4 +109,15 @@ public class Server implements ServerControl {
         }
     }
 
+    @Override
+    public ForkRemote getRemoteRightFork(final ChairRemote chair, final ClientControl currentClient, final int philId) throws RemoteException {
+        final int chairId = chair.getId();
+        if (chairId == totalSeats - 1) {
+            final ClientControl firstClient = clients.get(0);
+            return firstClient.getRightRemoteFork(chair, philId);
+        } else {
+            final ClientControl nextClient = clients.get(currentClient.getId() + 1);
+            return nextClient.getRightRemoteFork(chair, philId);
+        }
+    }
 }

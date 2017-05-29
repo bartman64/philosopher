@@ -3,7 +3,7 @@ package MeditationHall;
 import Client.Client;
 import Dininghall.Dininghall;
 import Dininghall.ChairRemote;
-import Dininghall.Chair;
+import Dininghall.ForkRemote;
 import Dininghall.Fork;
 import Dininghall.TableMaster;
 import org.slf4j.Logger;
@@ -24,12 +24,12 @@ public class Philosopher extends Observable implements Runnable {
     /**
      * int value indicating the amount of time it takes to sleep in milliseconds.
      */
-    private static final int SLEEP_TIME_MS = 10;
+    private static final int SLEEP_TIME_MS = 2000;
 
     /**
      * int value indicating the amount of time it takes to eat in milliseconds.
      */
-    private static final int EAT_TIME_MS = 1;
+    private static final int EAT_TIME_MS = 1000;
 
     /**
      * int id of an philosophers to be able to identify him later.
@@ -55,7 +55,7 @@ public class Philosopher extends Observable implements Runnable {
     /**
      * int value indicating the amount if time it takes to meditate in milliseconds.
      */
-    private int medtime_ms = 5;
+    private int medtime_ms = 3;
 
     private boolean threadState;
 
@@ -129,13 +129,14 @@ public class Philosopher extends Observable implements Runnable {
             ChairRemote chair = dininghall.getChair(id);
             if (chair == null) {
                 chair = dininghall.clientSearch(id);
-                LOGGER.info("Remote Chair aquired");
+                LOGGER.info("Remote Chair aquired[" + id + "]");
             }
             if (chair != null) {
-                final Fork leftFork = dininghall.getLeftFork(chair, id);
+                final ForkRemote leftFork = dininghall.getLeftFork(chair, id);
                 if (leftFork != null) {
 
-                    final Fork rightFork = dininghall.getRightFork(chair, id);
+                    final ForkRemote rightFork = dininghall.getRightFork(chair, id);
+
                     if (rightFork != null) {
                         LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating\n");
                         Thread.sleep(EAT_TIME_MS);
@@ -158,7 +159,7 @@ public class Philosopher extends Observable implements Runnable {
                 }
                 LOGGER.info("Philospher [" + id + "] leaves table\n");
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | RemoteException e) {
             e.printStackTrace();
         }
     }

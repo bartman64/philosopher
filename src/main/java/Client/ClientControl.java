@@ -2,6 +2,8 @@ package Client;
 
 import Dininghall.Chair;
 import Dininghall.ChairRemote;
+import Dininghall.ForkRemote;
+import com.sun.org.apache.regexp.internal.RE;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -27,4 +29,9 @@ public interface ClientControl extends Remote {
 
     ChairRemote searchEmptyChair(final int philosophersId) throws RemoteException;
 
+    ForkRemote searchRemoteRightFork(final ChairRemote chair, final int philId) throws RemoteException;
+
+    ForkRemote getRightRemoteFork(final ChairRemote chair, final int philId) throws RemoteException;
+
+    int getId() throws RemoteException;
 }

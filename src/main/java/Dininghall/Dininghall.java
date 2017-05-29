@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 
@@ -41,6 +42,13 @@ public class Dininghall {
     private final Client client;
 
     /**
+     * Int value indicating the start of the chair and seats index.
+     */
+    private int startValue;
+
+    private Registry registry;
+
+    /**
      * Constructor for the dining hall.
      * Initializes with the number of places matching amount of chairs and forks.
      *
@@ -58,12 +66,14 @@ public class Dininghall {
      * When the number of places equals one, an extra fork will be created.
      */
     public void initHall(final Registry register, final int startValue) {
+        this.startValue = startValue;
+        this.registry = register;
         for (int i = startValue; i < startValue + numberOfPlaces; i++) {
             chairs.add(new Chair(i));
             forks.add(new Fork(i));
             try {
-                ChairRemote chair = (ChairRemote) UnicastRemoteObject.exportObject(chairs.get(i), 0);
-                ForkRemote fork = (ForkRemote) UnicastRemoteObject.exportObject(forks.get(i), 0);
+                ChairRemote chair = (ChairRemote) UnicastRemoteObject.exportObject(chairs.get(i - startValue), 0);
+                ForkRemote fork = (ForkRemote) UnicastRemoteObject.exportObject(forks.get(i - startValue), 0);
                 register.bind("Chair" + i, chair);
                 register.bind("Fork" + i, fork);
             } catch (RemoteException | AlreadyBoundException e) {
@@ -84,15 +94,25 @@ public class Dininghall {
      *               For logging used.
      * @return the left fork if not already taken, null otherwise
      */
-    public synchronized Fork getLeftFork(final ChairRemote chair, final int philId) {
-        final Fork leftFork;
+    public synchronized ForkRemote getLeftFork(final ChairRemote chair, final int philId) {
+        ForkRemote leftFork = null;
         try {
-            leftFork = forks.get(chair.getId());
-            if (leftFork.isTaken()) {
-                return null;
+            //If the current chair is a remote chair from another table part search for the matching remote fork.
+            if (isRemoteChair(chair)) {
+                try {
+                    leftFork = (ForkRemote) registry.lookup("Fork" + chair.getId());
+                } catch (NotBoundException e) {
+                    e.printStackTrace();
+                }
             } else {
+                LOGGER.info("Chair Id: " + String.valueOf(chair.getId() + " Startvalue: " + startValue));
+                leftFork = forks.get(chair.getId() - startValue);
+            }
+            if (leftFork != null && leftFork.isTaken()) {
+                return null;
+            } else if (leftFork != null) {
                 leftFork.setTaken(true);
-                LOGGER.info("\tPhilospher [%d] took left fork: %d\n", philId, leftFork.getId());
+                LOGGER.info("\tPhilospher [" + philId + "] took left fork: " + leftFork.getId());
                 return leftFork;
             }
         } catch (RemoteException e) {
@@ -111,15 +131,24 @@ public class Dininghall {
      *               For logging used.
      * @return the right fork if not already taken, null otherwise
      */
-    public synchronized Fork getRightFork(final ChairRemote chair, final int philId) {
-        final Fork rightFork;
+    public synchronized ForkRemote getRightFork(final ChairRemote chair, final int philId) {
+        ForkRemote rightFork;
         //If the current chair is the last chair in the list
         //The right fork is the first fork in the list
         try {
-            if (chair.getId() == numberOfPlaces - 1) {
-                rightFork = forks.get(0);
+            //If the current chair is a remote chair from another table part search for the matching remote fork.
+            //And Check if the current chair is the last in the list
+            if (isRemoteChair(chair) || chair.equals(chairs.get(chairs.size() - 1))) {
+                String forkName;
+                if (client.getNumberOfSeats() - 1 == chair.getId()) {
+                    forkName = "Fork0";
+                } else {
+                    forkName = "Fork" + (chair.getId() + 1);
+                }
+                LOGGER.info("Forkname: " + forkName);
+                rightFork = (ForkRemote) registry.lookup(forkName);
             } else {
-                rightFork = forks.get(chair.getId() + 1);
+                rightFork = forks.get(chair.getId() + 1 - startValue);
             }
             if (rightFork.isTaken()) {
                 return null;
@@ -128,10 +157,14 @@ public class Dininghall {
                 rightFork.setTaken(true);
                 return rightFork;
             }
-        } catch (RemoteException e) {
+        } catch (RemoteException | NotBoundException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private boolean isRemoteChair(ChairRemote chair) throws RemoteException {
+        return chair.getId() < startValue || chair.getId() >= startValue + numberOfPlaces;
     }
 
     /**
@@ -145,7 +178,7 @@ public class Dininghall {
      */
     public synchronized Chair getChair(final int philId) {
         for (Chair chair : chairs) {
-            if (!chair.isTaken() && !forks.get(chair.getId()).isTaken()) {
+            if (!chair.isTaken() && !forks.get(chair.getId() - startValue).isTaken()) {
                 chair.setTaken(true);
                 LOGGER.info("Philospher [" + philId + "] took chair: " + chair.getId());
                 return chair;
