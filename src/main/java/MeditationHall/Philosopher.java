@@ -1,9 +1,7 @@
 package MeditationHall;
 
-import Client.Client;
 import Dininghall.Dininghall;
 import Dininghall.ChairRemote;
-import Dininghall.Chair;
 import Dininghall.Fork;
 import Dininghall.TableMaster;
 import org.slf4j.Logger;
@@ -56,6 +54,11 @@ public class Philosopher extends Observable implements Runnable {
      * int value indicating the amount if time it takes to meditate in milliseconds.
      */
     private int medtime_ms = 5;
+
+    /**
+     * Boolean to check wether the current Philospher is waiting.
+     */
+    private boolean waiting = false;
 
     private boolean threadState;
 
@@ -126,10 +129,23 @@ public class Philosopher extends Observable implements Runnable {
      */
     private void eat() {
         try {
+            boolean eaten = false;
             ChairRemote chair = dininghall.getChair(id);
             if (chair == null) {
-                chair = dininghall.clientSearch(id);
-                LOGGER.info("Remote Chair aquired");
+                if((chair = dininghall.getQueueChair(this)) != null){
+                    waiting = true;
+                    synchronized (chair){
+                        LOGGER.info("Philosopher [" + id + "] waiting for notification\n");
+                        while(waiting) {
+                            chair.wait();
+                        }
+                    }
+                    chair = dininghall.getChair(id);
+                }
+                if(chair == null){
+                    chair = dininghall.clientSearch(id);
+                    LOGGER.info("Remote Chair aquired");
+                }
             }
             if (chair != null) {
                 final Fork leftFork = dininghall.getLeftFork(chair, id);
@@ -137,6 +153,7 @@ public class Philosopher extends Observable implements Runnable {
 
                     final Fork rightFork = dininghall.getRightFork(chair, id);
                     if (rightFork != null) {
+                        eaten = true;
                         LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating\n");
                         Thread.sleep(EAT_TIME_MS);
                         eatCounter++;
@@ -145,7 +162,6 @@ public class Philosopher extends Observable implements Runnable {
                         rightFork.setTaken(false);
                         LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
                         LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
-                        notifyOb();
                     } else {
                         leftFork.setTaken(false);
                         LOGGER.info("Philospher [" + id + "] released left fork: " + leftFork.getId());
@@ -153,6 +169,9 @@ public class Philosopher extends Observable implements Runnable {
                 }
                 try {
                     chair.setTaken(false);
+                    if(eaten){
+                        notifyOb();
+                    }
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -190,6 +209,10 @@ public class Philosopher extends Observable implements Runnable {
      */
     public int getId() {
         return id;
+    }
+
+    public void setWaitingStatus(boolean status){
+        this.waiting = status;
     }
 
     //TODO IS this force sleep necessary?

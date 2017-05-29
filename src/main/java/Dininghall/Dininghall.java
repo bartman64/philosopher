@@ -4,6 +4,7 @@ package Dininghall;
 import Client.Client;
 import Client.ClientControl;
 
+import MeditationHall.Philosopher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,15 +85,15 @@ public class Dininghall {
      *               For logging used.
      * @return the left fork if not already taken, null otherwise
      */
-    public synchronized Fork getLeftFork(final ChairRemote chair, final int philId) {
+    public Fork getLeftFork(final ChairRemote chair, final int philId) {
         final Fork leftFork;
         try {
             leftFork = forks.get(chair.getId());
-            if (leftFork.isTaken()) {
+            if (!leftFork.aquireFork()) {
                 return null;
             } else {
                 leftFork.setTaken(true);
-                LOGGER.info("\tPhilospher [%d] took left fork: %d\n", philId, leftFork.getId());
+                LOGGER.info("\tPhilospher ["+ philId + "] took left fork: " + leftFork.getId() +" \n");
                 return leftFork;
             }
         } catch (RemoteException e) {
@@ -111,7 +112,7 @@ public class Dininghall {
      *               For logging used.
      * @return the right fork if not already taken, null otherwise
      */
-    public synchronized Fork getRightFork(final ChairRemote chair, final int philId) {
+    public Fork getRightFork(final ChairRemote chair, final int philId) {
         final Fork rightFork;
         //If the current chair is the last chair in the list
         //The right fork is the first fork in the list
@@ -121,7 +122,7 @@ public class Dininghall {
             } else {
                 rightFork = forks.get(chair.getId() + 1);
             }
-            if (rightFork.isTaken()) {
+            if (!rightFork.aquireFork()) {
                 return null;
             } else {
                 LOGGER.info("\t\tPhilospher [" + philId + "] took right fork: " + rightFork.getId());
@@ -143,11 +144,25 @@ public class Dininghall {
      *               For logging used.
      * @return chair if not taken and has left fork, null otherwise
      */
-    public synchronized Chair getChair(final int philId) {
+    public Chair getChair(final int philId) {
         for (Chair chair : chairs) {
-            if (!chair.isTaken() && !forks.get(chair.getId()).isTaken()) {
+            if (chair.aquireChair()) {
                 chair.setTaken(true);
                 LOGGER.info("Philospher [" + philId + "] took chair: " + chair.getId());
+                return chair;
+            }
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param philosopher
+     * @return
+     */
+    public Chair getQueueChair(final Philosopher philosopher){
+        for(Chair chair : chairs){
+            if(chair.aquireQueuedChair(philosopher)){
                 return chair;
             }
         }
