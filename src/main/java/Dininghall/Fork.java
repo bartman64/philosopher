@@ -23,4 +23,13 @@ public class Fork implements ForkRemote {
     public void setTaken(boolean taken) {
         this.taken = taken;
     }
+
+    public synchronized boolean aquireFork(){
+        boolean result = false;
+        if(!this.taken) {
+            this.taken = true;
+            result = true;
+        }
+        return result;
+    }
 }

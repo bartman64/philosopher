@@ -1,10 +1,18 @@
 package Dininghall;
 
+import MeditationHall.Philosopher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Chair implements ChairRemote {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Chair.class);
 
     private boolean taken;
 
     private int id;
+
+    private Philosopher queuedPhil = null;
 
     public Chair(final int id) {
         this.taken = false;
@@ -29,8 +37,39 @@ public class Chair implements ChairRemote {
         return result;
     }
 
-    public void setTaken(boolean taken) {
+
+    public synchronized void setTaken(boolean taken) {
         this.taken = taken;
+        if (queuedPhil != null && !taken) {
+            LOGGER.info("Chair ["+ id +"] Notified Philosopher [" + queuedPhil.getId() + "]\n");
+            queuedPhil.setWaitingStatus(false);
+            this.notify();
+            resetQueue();
+        }
+    }
+
+    public synchronized boolean aquireChair() {
+        boolean aquired = false;
+        if (!this.taken) {
+            this.setTaken(true);
+            aquired = true;
+        }
+        return aquired;
+    }
+
+    public synchronized boolean aquireQueuedChair(Philosopher philosopher) {
+        boolean aquired = false;
+        if (this.taken && this.queuedPhil == null) {
+            aquired = true;
+            this.queuedPhil = philosopher;
+            LOGGER.info("Added Philosopher ["+ queuedPhil.getId()+"] to the queue of chair[" + id + "]\n");
+        }
+        return aquired;
+    }
+
+    private void resetQueue() {
+        this.queuedPhil = null;
+        LOGGER.info("Reset queue of chair [" + id +"]\n");
     }
 
     public boolean isTaken() {

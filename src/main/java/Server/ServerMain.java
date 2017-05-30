@@ -11,7 +11,7 @@ public class ServerMain {
     public static void main(String[] args) {
         try {
             final Registry registry = LocateRegistry.createRegistry(1099);
-            Server server = new Server(10, 10);
+            Server server = new Server(2, 4);
             ServerControl serverStub = (ServerControl) UnicastRemoteObject.exportObject(server, 0);
             registry.bind("Server", serverStub);
             Thread.sleep(10000);
