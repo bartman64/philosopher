@@ -121,6 +121,8 @@ public class Philosopher extends Observable implements Runnable {
      * This method simulates the process of eating.
      * Finding an emptry chair, trying to get both forks and then be able to eat.
      * It prints out status messages after each step.
+     *
+     * Gabeln nehmen ändern --> warten / mehrmals versuchen
      */
     public void eat() {
         System.out.printf("Philsopher [%d] searching for empty chair\n", this.getId());

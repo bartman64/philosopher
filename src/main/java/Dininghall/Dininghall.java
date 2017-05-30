@@ -105,7 +105,17 @@ public class Dininghall {
      * @return chair if not taken and has left fork, null otherwise
      */
     public Chair getChair(final int philId) {
-        for (Chair chair : chairs) {
+        int size = chairs.size() - 1;
+        int start = (int) (size * Math.random());
+        for (;start < size; start++) {
+            Chair chair = chairs.get(start);
+            if (chair.aquireChair()) {
+                System.out.printf("Philospher [%d] took chair: %d\n", philId, chair.getId());
+                return chair;
+            }
+        }
+        for(int i = 0; i < start; i++){
+            Chair chair = chairs.get(start);
             if (chair.aquireChair()) {
                 System.out.printf("Philospher [%d] took chair: %d\n", philId, chair.getId());
                 return chair;
