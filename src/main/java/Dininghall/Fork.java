@@ -36,7 +36,4 @@ public class Fork {
             return result;
     }
 
-    public synchronized Fork aquireWait(){
-        return this;
-    }
 }
