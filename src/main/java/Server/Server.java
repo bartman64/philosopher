@@ -88,6 +88,7 @@ public class Server implements ServerControl {
         for (int i = 0; i < clients.size(); i++) {
             try {
                 clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry, i, totalSeats);
+                LOGGER.info("Clien[" + i + "] with Seats: " + numberOfSeats + " and Phils: " + numberOfPhilosophers);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -107,6 +108,20 @@ public class Server implements ServerControl {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public int calcTotalAvg() {
+        int totalAvg = 0;
+        for (ClientControl client : clients) {
+            try {
+                totalAvg += client.avgCalc();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        totalAvg /= clients.size();
+        return totalAvg;
     }
 
 }

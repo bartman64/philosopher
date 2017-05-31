@@ -1,9 +1,11 @@
 package Dininghall;
 
+import Client.ClientControl;
 import MeditationHall.Philosopher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.rmi.RemoteException;
 import java.util.*;
 
 public class TableMaster extends Thread implements Observer {
@@ -12,8 +14,11 @@ public class TableMaster extends Thread implements Observer {
 
     private final Map<Philosopher, Integer> phil2EatCount;
 
-    public TableMaster() {
+    private final ClientControl client;
+
+    public TableMaster(final ClientControl client) {
         phil2EatCount = new HashMap<>();
+        this.client = client;
     }
 
 
@@ -26,13 +31,10 @@ public class TableMaster extends Thread implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         int avgConsumption = 0;
-        for (Map.Entry<Philosopher, Integer> entries : phil2EatCount.entrySet()) {
-            if (!entries.getKey().equals(o)) {
-                avgConsumption += entries.getValue();
-            }
-        }
-        if (phil2EatCount.size() > 1) {
-            avgConsumption = avgConsumption / (phil2EatCount.size() - 1);
+        try {
+            avgConsumption = client.getTotalAvg();
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
         for (Map.Entry<Philosopher, Integer> entries : phil2EatCount.entrySet()) {
             if (entries.getKey().equals(o)) {
@@ -48,6 +50,16 @@ public class TableMaster extends Thread implements Observer {
                 }
             }
         }
+    }
 
+    public int calcAvgConsumption() {
+        int avgConsumption = 0;
+        for (Map.Entry<Philosopher, Integer> entries : phil2EatCount.entrySet()) {
+            avgConsumption += entries.getValue();
+        }
+        if (phil2EatCount.size() > 1) {
+            avgConsumption = avgConsumption / (phil2EatCount.size() - 1);
+        }
+        return avgConsumption;
     }
 }

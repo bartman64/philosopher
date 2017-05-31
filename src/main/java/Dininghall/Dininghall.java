@@ -137,15 +137,7 @@ public class Dininghall {
             //If the current chair is a remote chair from another table part search for the matching remote fork.
             //And Check if the current chair is the last in the list
             if (isRemoteChair(chair) || chair.equals(chairs.get(chairs.size() - 1))) {
-                String forkName;
-                LOGGER.info("Chair: " + chair.getId() + "check if last chair");
-                if (client.getTotalSeats() - 1 == chair.getId()) {
-                    forkName = "Fork0";
-                } else {
-                    forkName = "Fork" + (chair.getId() + 1);
-                }
-                LOGGER.info("Forkname: " + forkName);
-                rightFork = (ForkRemote) registry.lookup(forkName);
+                rightFork = getRemoteFork(chair);
             } else {
                 rightFork = forks.get(chair.getId() + 1 - startValue);
             }
@@ -162,6 +154,20 @@ public class Dininghall {
         return null;
     }
 
+    private ForkRemote getRemoteFork(ChairRemote chair) throws RemoteException, NotBoundException {
+        ForkRemote rightFork;
+        String forkName;
+        LOGGER.info("Chair: " + chair.getId() + "check if last chair");
+        if (client.getTotalSeats() - 1 == chair.getId()) {
+            forkName = "Fork0";
+        } else {
+            forkName = "Fork" + (chair.getId() + 1);
+        }
+        LOGGER.info("Forkname: " + forkName);
+        rightFork = (ForkRemote) registry.lookup(forkName);
+        return rightFork;
+    }
+
     private boolean isRemoteChair(ChairRemote chair) throws RemoteException {
         return chair.getId() < startValue || chair.getId() >= startValue + numberOfPlaces;
     }
@@ -175,16 +181,35 @@ public class Dininghall {
      *               For logging used.
      * @return chair if not taken and has left fork, null otherwise
      */
+
+    /**
+     * This method iterates through the list of chairs,
+     * tries to find a chair which is not taken
+     * with the left fork which not taken.
+     *
+     * @param philId Id of the philosopher trying to get the fork.
+     *               For logging used.
+     * @return chair if not taken and has left fork, null otherwise
+     */
     public Chair getChair(final int philId) {
-        for (Chair chair : chairs) {
-            if (chair.aquireChair() && !forks.get(chair.getId() - startValue).isTaken()) {
-                LOGGER.info("Philospher [" + philId + "] took chair: " + chair.getId());
+        int size = chairs.size() - 1;
+        int start = (int) (size * Math.random());
+        for (; start < size; start++) {
+            Chair chair = chairs.get(start);
+            if (chair.aquireChair()) {
+                System.out.printf("Philospher [%d] took chair: %d\n", philId, chair.getId());
+                return chair;
+            }
+        }
+        for (int i = 0; i < start; i++) {
+            Chair chair = chairs.get(start);
+            if (chair.aquireChair()) {
+                System.out.printf("Philospher [%d] took chair: %d\n", philId, chair.getId());
                 return chair;
             }
         }
         return null;
     }
-
 
     /**
      * @param philosopher
@@ -202,6 +227,37 @@ public class Dininghall {
 
     public ChairRemote clientSearch(final int philosopherId) {
         return client.searchForEmptySeat(philosopherId);
+    }
+
+
+    /**
+     * Returns the fork as a lock in order for the philosopher to wait on it
+     *
+     * @param chair
+     * @param fork
+     * @return
+     */
+    public ForkRemote aquireWaitFork(final ChairRemote chair, final String fork) {
+        ForkRemote waitFork;
+        try {
+            if ("left".equals(fork)) {
+                if (isRemoteChair(chair)) {
+                    waitFork = (ForkRemote) registry.lookup("Fork" + chair.getId());
+                } else {
+                    waitFork = forks.get(chair.getId());
+                }
+            } else {
+                if (isRemoteChair(chair) || chair.equals(chairs.get(chairs.size() - 1))) {
+                    waitFork = getRemoteFork(chair);
+                } else {
+                    waitFork = forks.get(chair.getId() + 1);
+                }
+            }
+            return waitFork;
+        } catch (final RemoteException | NotBoundException e) {
+            throw new RuntimeException();
+        }
+
     }
 
 }

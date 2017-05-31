@@ -8,4 +8,6 @@ public interface ChairRemote extends Remote {
     void setTaken(final boolean flag) throws RemoteException;
 
     int getId() throws RemoteException;
+
+    boolean isTaken() throws RemoteException;
 }

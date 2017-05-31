@@ -1,6 +1,8 @@
 package Dininghall;
 
 
+import java.rmi.RemoteException;
+
 public class Fork implements ForkRemote {
 
     private boolean taken;
@@ -12,21 +14,25 @@ public class Fork implements ForkRemote {
         this.id = id;
     }
 
-    public boolean isTaken() {
-        return taken;
-    }
-
     public int getId() {
         return id;
     }
 
-    public void setTaken(boolean taken) {
+    public synchronized void setTaken(boolean taken) {
+        if (!taken) {
+            this.notify();
+        }
         this.taken = taken;
     }
 
-    public synchronized boolean aquireFork(){
+    @Override
+    public boolean isTaken() throws RemoteException {
+        return taken;
+    }
+
+    public synchronized boolean aquireFork() {
         boolean result = false;
-        if(!this.taken) {
+        if (!this.taken) {
             this.taken = true;
             result = true;
         }

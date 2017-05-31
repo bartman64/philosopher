@@ -96,7 +96,7 @@ public class Client implements ClientControl {
         dininghall = new Dininghall(numberOfSeats, this);
         dininghall.initHall(registry, startIndicez);
         meditationHall = new MeditationHall(numberOfPhilosophers, dininghall);
-        tableMaster = new TableMaster();
+        tableMaster = new TableMaster(this);
         LOGGER.info(String.valueOf(startIndicez));
         meditationHall.initPhilosophers(0, tableMaster, startIndicez);
         tableMaster.initMap(meditationHall.getPhilosophers());
@@ -138,6 +138,16 @@ public class Client implements ClientControl {
         return null;
     }
 
+    @Override
+    public int avgCalc() {
+        return tableMaster.calcAvgConsumption();
+    }
 
-
+    public int getTotalAvg() {
+        try {
+            return server.calcTotalAvg();
+        } catch (RemoteException e) {
+            throw new RuntimeException();
+        }
+    }
 }

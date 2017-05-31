@@ -30,4 +30,8 @@ public interface ClientControl extends Remote {
     ChairRemote searchEmptyChair(final int philosophersId) throws RemoteException;
 
     int getId() throws RemoteException;
+
+    int avgCalc() throws RemoteException;
+
+    int getTotalAvg() throws  RemoteException;
 }

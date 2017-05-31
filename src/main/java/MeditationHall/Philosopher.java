@@ -24,12 +24,17 @@ public class Philosopher extends Observable implements Runnable {
     /**
      * int value indicating the amount of time it takes to sleep in milliseconds.
      */
-    private static final int SLEEP_TIME_MS = 2;
+    private static final int SLEEP_TIME_MS = 10;
 
     /**
      * int value indicating the amount of time it takes to eat in milliseconds.
      */
     private static final int EAT_TIME_MS = 1;
+
+    /**
+     * int value indicating the amount if time it takes to meditate in milliseconds.
+     */
+    private int medtime_ms = 5;
 
     /**
      * int id of an philosophers to be able to identify him later.
@@ -51,16 +56,6 @@ public class Philosopher extends Observable implements Runnable {
      * Dininghall where the philosophers go to eat.
      */
     final private Dininghall dininghall;
-
-    /**
-     * int value indicating the amount if time it takes to meditate in milliseconds.
-     */
-    private int medtime_ms = 3;
-
-    /**
-     * Boolean to check wether the current Philospher is waiting.
-     */
-    private boolean waiting = false;
 
     private boolean threadState;
 
@@ -109,7 +104,7 @@ public class Philosopher extends Observable implements Runnable {
             meditate();
             eat();
             if (eatCounter == MAX_EAT_COUNTER) {
-                LOGGER.info("\t\t\t\t\tPhilospher [" + id + "]  is sleeping\n");
+                LOGGER.info("\t\t\t\t\tPhilospher [" + id + "]  is sleeping");
                 sleep();
                 eatCounter = 0;
             }
@@ -131,14 +126,12 @@ public class Philosopher extends Observable implements Runnable {
      */
     private void eat() {
         try {
-            boolean eaten = false;
             ChairRemote chair = dininghall.getChair(id);
             if (chair == null) {
                 if ((chair = dininghall.getQueueChair(this)) != null) {
-                    waiting = true;
                     synchronized (chair) {
-                        LOGGER.info("Philosopher [" + id + "] waiting for notification\n");
-                        while (waiting) {
+                        LOGGER.info("Philosopher [" + id + "] waiting for notification");
+                        while (chair.isTaken()) {
                             chair.wait();
                         }
                     }
@@ -152,40 +145,51 @@ public class Philosopher extends Observable implements Runnable {
                 }
             }
             if (chair != null) {
-                final ForkRemote leftFork = dininghall.getLeftFork(chair, id);
-                if (leftFork != null) {
-
-                    final ForkRemote rightFork = dininghall.getRightFork(chair, id);
-
-                    if (rightFork != null) {
-                        eaten = true;
-                        LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating\n");
-                        Thread.sleep(EAT_TIME_MS);
-                        eatCounter++;
-                        totalEatCounter++;
-                        leftFork.setTaken(false);
-                        rightFork.setTaken(false);
-                        LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
-                        LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
-                        notifyOb();
-                    } else {
-                        leftFork.setTaken(false);
-                        LOGGER.info("Philospher [" + id + "] released left fork: " + leftFork.getId());
+                ForkRemote leftFork = dininghall.getLeftFork(chair, id);
+                if (leftFork == null) {
+                    leftFork = dininghall.aquireWaitFork(chair, "left");
+                    synchronized (leftFork) {
+                        LOGGER.info("\t\tPhilosopher [%d] is waiting for LeftFork[%d]", id, leftFork.getId());
+                        while (leftFork.isTaken()) {
+                            leftFork.wait();
+                        }
+                        leftFork = dininghall.getLeftFork(chair, id);
                     }
                 }
-                try {
+
+                ForkRemote rightFork = dininghall.getRightFork(chair, id);
+
+                if (rightFork == null) {
+                    Thread.sleep(0, 500);
+                    rightFork = dininghall.getRightFork(chair, id);
+                }
+                if (rightFork != null) {
+                    LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating");
+                    Thread.sleep(EAT_TIME_MS);
+                    eatCounter++;
+                    totalEatCounter++;
+                    leftFork.setTaken(false);
+                    rightFork.setTaken(false);
+                    LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
+                    LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
+
                     chair.setTaken(false);
-                    if (eaten) {
-                        notifyOb();
-                    }
-                } catch (RemoteException e) {
-                    e.printStackTrace();
+                    notifyOb();
+                    LOGGER.info("Philospher [" + id + "] leaves table");
+                } else {
+                    leftFork.setTaken(false);
+                    LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
+                    chair.setTaken(false);
+                    LOGGER.info("Philospher [" + id + "] leaves table\n", id);
                 }
-                LOGGER.info("Philospher [" + id + "] leaves table\n");
             }
-        } catch (InterruptedException | RemoteException e) {
+        } catch (InterruptedException |
+                RemoteException e)
+
+        {
             e.printStackTrace();
         }
+
     }
 
     /**
@@ -215,10 +219,6 @@ public class Philosopher extends Observable implements Runnable {
      */
     public int getId() {
         return id;
-    }
-
-    public void setWaitingStatus(boolean status) {
-        this.waiting = status;
     }
 
     //TODO IS this force sleep necessary?

@@ -12,4 +12,6 @@ public interface ServerControl extends Remote {
 
     ChairRemote searchFreeChair(final int philosoperId) throws RemoteException;
 
+    int calcTotalAvg() throws RemoteException;
+
 }
