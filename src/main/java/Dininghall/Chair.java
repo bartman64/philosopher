@@ -19,7 +19,6 @@ public class Chair {
         this.taken = taken;
         if (queuedPhil != null && !taken) {
             System.out.printf("Chair [%d] Notified Philosopher [%d]\n", id, queuedPhil.getId());
-            queuedPhil.setWaitingStatus(false);
             this.notify();
             resetQueue();
         }

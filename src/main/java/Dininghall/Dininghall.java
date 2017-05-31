@@ -96,6 +96,26 @@ public class Dininghall {
     }
 
     /**
+     * Returns the fork as a lock in order for the philosopher to wait on it
+     * @param chairId
+     * @param fork
+     * @return
+     */
+    public Fork aquireWaitFork(final int chairId, final String fork){
+        Fork waitFork = null;
+        if(fork == "left"){
+            waitFork = forks.get(chairId);
+        } else {
+            if(chairId == numberOfPlaces - 1){
+                waitFork = forks.get(0);
+            } else {
+                waitFork = forks.get(chairId + 1);
+            }
+        }
+        return waitFork;
+    }
+
+    /**
      * This method iterates through the list of chairs,
      * tries to find a chair which is not taken
      * with the left fork which not taken.

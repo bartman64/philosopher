@@ -16,7 +16,10 @@ public class Fork {
         return taken;
     }
 
-    public void setTaken(boolean taken){
+    public synchronized void setTaken(boolean taken){
+        if(!taken){
+            this.notify();
+        }
         this.taken = taken;
     }
 
@@ -31,5 +34,9 @@ public class Fork {
             result = true;
         }
             return result;
+    }
+
+    public synchronized Fork aquireWait(){
+        return this;
     }
 }

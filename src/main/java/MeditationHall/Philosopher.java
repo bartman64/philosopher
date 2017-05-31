@@ -50,11 +50,6 @@ public class Philosopher extends Observable implements Runnable {
      */
     private int medtime_ms = 5;
 
-    /**
-     * Boolean to check wether the current Philospher is waiting.
-     */
-    private boolean waiting = false;
-
     private boolean threadState;
 
     /**
@@ -121,56 +116,63 @@ public class Philosopher extends Observable implements Runnable {
      * This method simulates the process of eating.
      * Finding an emptry chair, trying to get both forks and then be able to eat.
      * It prints out status messages after each step.
-     *
+     * <p>
      * Gabeln nehmen ändern --> warten / mehrmals versuchen
      */
     public void eat() {
         System.out.printf("Philsopher [%d] searching for empty chair\n", this.getId());
         try {
             boolean eaten = false;
-            int searchCount = 0;
             Chair chair = dininghall.getChair(id);
-/*            while(searchCount < 3 && chair == null){
-                Thread.sleep(5);
-                System.out.printf("Philosopher [%d] still searching...\n", this.getId());
-                searchCount++;
-                chair = dininghall.getChair(id);
-            }*/
-            if(chair == null){
-                if((chair = dininghall.getQueueChair(this)) != null){
-                    waiting = true;
-                    synchronized (chair){
+            if (chair == null) {
+                if ((chair = dininghall.getQueueChair(this)) != null) {
+                    synchronized (chair) {
                         System.out.printf("Philosopher [%d] waiting for notification\n", id);
-                        while(waiting) {
+                        while (chair.isTaken()) {
                             chair.wait();
                         }
                     }
-                    System.out.printf("Philosopher [%d] got notified by chair [%d]\n",id, chair.getId());
+                    System.out.printf("Philosopher [%d] got notified by chair [%d]\n", id, chair.getId());
                     chair = dininghall.getChair(id);
                 }
             }
             if (chair != null) {
-                final Fork leftFork = dininghall.getLeftFork(chair, id);
-                if (leftFork != null) {
-                    final Fork rightFork = dininghall.getRightFork(chair, id);
-                    if (rightFork != null) {
-                        eaten = true;
-                        System.out.printf("\t\t\tPhilospher [%d]  is eating\n", id);
-                        Thread.sleep(EAT_TIME_MS);
-                        eatCounter++;
-                        totalEatCounter++;
-                        leftFork.setTaken(false);
-                        rightFork.setTaken(false);
-                        System.out.printf("\t\tPhilospher [%d] released left fork: %d\n", id, leftFork.getId());
-                        System.out.printf("\tPhilospher [%d] released right fork: %d\n", id, rightFork.getId());
-                    } else {
-                        leftFork.setTaken(false);
-                        System.out.printf("Philospher [%d] released left fork: %d\n", id, leftFork.getId());
+                Fork leftFork = dininghall.getLeftFork(chair, id);
+                if (leftFork == null) {
+                    leftFork = dininghall.aquireWaitFork(chair.getId(), "left");
+                    synchronized (leftFork) {
+                        System.out.printf("\t\tPhilosopher [%d] is waiting for LeftFork[%d]\n", id, leftFork.getId());
+                        while (leftFork.isTaken()) {
+                            leftFork.wait();
+                        }
+                        leftFork = dininghall.getLeftFork(chair, id);
                     }
                 }
+                System.out.printf("\t\tPhilosopher [%d] aquired LeftFork[%d]\n", id, leftFork.getId());
+                Fork rightFork = dininghall.getRightFork(chair, id);
+                if (rightFork == null) {
+                    rightFork = dininghall.aquireWaitFork(chair.getId(), "right");
+                    synchronized (rightFork) {
+                        System.out.printf("\t\tPhilosopher [%d] is waiting for RigtFork[%d]\n", id, rightFork.getId());
+                        while (rightFork.isTaken()) {
+                            rightFork.wait();
+                        }
+                        rightFork = dininghall.getRightFork(chair, id);
+                    }
+                }
+                System.out.printf("\t\tPhilosopher [%d] aquired RigtFork[%d]\n", id, rightFork.getId());
+                System.out.printf("\t\t\tPhilospher [%d]  is eating\n", id);
+                Thread.sleep(EAT_TIME_MS);
+                eatCounter++;
+                totalEatCounter++;
+                leftFork.setTaken(false);
+                rightFork.setTaken(false);
+                System.out.printf("\t\tPhilospher [%d] released left fork: %d\n", id, leftFork.getId());
+                System.out.printf("\tPhilospher [%d] released right fork: %d\n", id, rightFork.getId());
                 chair.setTaken(false);
-                if(eaten)
-                    notifyOb();
+                notifyOb();
+                System.out.printf("Philospher [%d] leaves table\n", id);
+            } else {
                 System.out.printf("Philospher [%d] leaves table\n", id);
             }
         } catch (InterruptedException e) {
@@ -205,10 +207,6 @@ public class Philosopher extends Observable implements Runnable {
      */
     public int getId() {
         return id;
-    }
-
-    public void setWaitingStatus(boolean status){
-        this.waiting = status;
     }
 
     //TODO IS this force sleep necessary?

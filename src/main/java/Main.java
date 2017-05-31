@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
         long millis = System.currentTimeMillis() / 1000;
         final int numberOfPhilosophers = 10;
-        final int numberOfPlaces = 2;
+        final int numberOfPlaces = 10;
 
         final Dininghall dininghall = new Dininghall(numberOfPlaces);
         dininghall.initHall();
@@ -30,7 +30,7 @@ public class Main {
             thread.start();
         }
 
-        while (System.currentTimeMillis() / 1000 - millis != 5) {
+        while (System.currentTimeMillis() / 1000 - millis != 60) {
         }
 
         for (Philosopher philosopher : meditationHall.getPhilosophers()) {
