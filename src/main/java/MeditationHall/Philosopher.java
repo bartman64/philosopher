@@ -6,6 +6,7 @@ import Dininghall.Fork;
 import Dininghall.TableMaster;
 
 import java.util.Observable;
+import java.util.Random;
 
 public class Philosopher extends Observable implements Runnable {
 
@@ -145,36 +146,36 @@ public class Philosopher extends Observable implements Runnable {
                         while (leftFork.isTaken()) {
                             leftFork.wait();
                         }
-                        leftFork = dininghall.getLeftFork(chair, id);
                     }
+                    leftFork = dininghall.getLeftFork(chair, id);
                 }
-                System.out.printf("\t\tPhilosopher [%d] aquired LeftFork[%d]\n", id, leftFork.getId());
                 Fork rightFork = dininghall.getRightFork(chair, id);
                 if (rightFork == null) {
-                    rightFork = dininghall.aquireWaitFork(chair.getId(), "right");
-                    synchronized (rightFork) {
-                        System.out.printf("\t\tPhilosopher [%d] is waiting for RigtFork[%d]\n", id, rightFork.getId());
-                        while (rightFork.isTaken()) {
-                            rightFork.wait();
-                        }
-                        rightFork = dininghall.getRightFork(chair, id);
-                    }
+                    Thread.sleep(1);
+                    rightFork = dininghall.getRightFork(chair, id);
                 }
-                System.out.printf("\t\tPhilosopher [%d] aquired RigtFork[%d]\n", id, rightFork.getId());
-                System.out.printf("\t\t\tPhilospher [%d]  is eating\n", id);
-                Thread.sleep(EAT_TIME_MS);
-                eatCounter++;
-                totalEatCounter++;
-                leftFork.setTaken(false);
-                rightFork.setTaken(false);
-                System.out.printf("\t\tPhilospher [%d] released left fork: %d\n", id, leftFork.getId());
-                System.out.printf("\tPhilospher [%d] released right fork: %d\n", id, rightFork.getId());
-                chair.setTaken(false);
-                notifyOb();
-                System.out.printf("Philospher [%d] leaves table\n", id);
+                if (rightFork != null) {
+                    System.out.printf("\t\t\tPhilospher [%d]  is eating\n", id);
+                    Thread.sleep(EAT_TIME_MS);
+                    eatCounter++;
+                    totalEatCounter++;
+                    leftFork.setTaken(false);
+                    rightFork.setTaken(false);
+                    System.out.printf("\t\tPhilospher [%d] released left fork: %d\n", id, leftFork.getId());
+                    System.out.printf("\tPhilospher [%d] released right fork: %d\n", id, rightFork.getId());
+                    chair.setTaken(false);
+                    notifyOb();
+                    System.out.printf("Philospher [%d] leaves table\n", id);
+                } else {
+                    leftFork.setTaken(false);
+                    System.out.printf("\t\tPhilospher [%d] released left fork: %d\n", id, leftFork.getId());
+                    chair.setTaken(false);
+                    System.out.printf("Philospher [%d] leaves table\n", id);
+                }
             } else {
                 System.out.printf("Philospher [%d] leaves table\n", id);
             }
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

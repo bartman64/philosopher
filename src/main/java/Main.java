@@ -10,8 +10,8 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         long millis = System.currentTimeMillis() / 1000;
-        final int numberOfPhilosophers = 10;
-        final int numberOfPlaces = 10;
+        final int numberOfPhilosophers = 5;
+        final int numberOfPlaces = 2;
 
         final Dininghall dininghall = new Dininghall(numberOfPlaces);
         dininghall.initHall();
@@ -30,9 +30,10 @@ public class Main {
             thread.start();
         }
 
-        while (System.currentTimeMillis() / 1000 - millis != 60) {
+        while (System.currentTimeMillis() / 1000 - millis != 5) {
         }
 
+        System.out.print("Time out\n");
         for (Philosopher philosopher : meditationHall.getPhilosophers()) {
             philosopher.setThreadState(false);
         }
