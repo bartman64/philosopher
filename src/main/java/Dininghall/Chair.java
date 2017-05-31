@@ -17,10 +17,10 @@ public class Chair {
 
     public synchronized void setTaken(boolean taken) {
         this.taken = taken;
-        if (queuedPhil != null && !taken) {
-            System.out.printf("Chair [%d] Notified Philosopher [%d]\n", id, queuedPhil.getId());
-            this.notify();
+        if (this.queuedPhil != null && !taken) {
+            System.out.printf("Chair [%d] Notified Philosopher [%d]\n", id, this.queuedPhil.getId());
             resetQueue();
+            this.notifyAll();
         }
     }
 

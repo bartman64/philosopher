@@ -123,13 +123,12 @@ public class Philosopher extends Observable implements Runnable {
     public void eat() {
         System.out.printf("Philsopher [%d] searching for empty chair\n", this.getId());
         try {
-            boolean eaten = false;
             Chair chair = dininghall.getChair(id);
             if (chair == null) {
                 if ((chair = dininghall.getQueueChair(this)) != null) {
                     synchronized (chair) {
-                        System.out.printf("Philosopher [%d] waiting for notification\n", id);
                         while (chair.isTaken()) {
+                            System.out.printf("Philosopher [%d] waiting for notification of chair[%d]\n", id, chair.getId());
                             chair.wait();
                         }
                     }
@@ -146,8 +145,8 @@ public class Philosopher extends Observable implements Runnable {
                         while (leftFork.isTaken()) {
                             leftFork.wait();
                         }
+                        leftFork = dininghall.getLeftFork(chair, id);
                     }
-                    leftFork = dininghall.getLeftFork(chair, id);
                 }
                 Fork rightFork = dininghall.getRightFork(chair, id);
                 if (rightFork == null) {
