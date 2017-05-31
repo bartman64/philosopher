@@ -20,7 +20,7 @@ public interface ClientControl extends Remote {
      * @param numberOfSeats        amount of philosopher in the client system.
      * @throws RemoteException if an remote error occurs
      */
-    void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int startValue) throws RemoteException;
+    void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int startValue, final int totalSeats) throws RemoteException;
 
     /**
      * This method start the runnable philosophers and the tablemaster thread.
@@ -28,10 +28,6 @@ public interface ClientControl extends Remote {
     void startClient() throws RemoteException;
 
     ChairRemote searchEmptyChair(final int philosophersId) throws RemoteException;
-
-    ForkRemote searchRemoteRightFork(final ChairRemote chair, final int philId) throws RemoteException;
-
-    ForkRemote getRightRemoteFork(final ChairRemote chair, final int philId) throws RemoteException;
 
     int getId() throws RemoteException;
 }

@@ -24,12 +24,12 @@ public class Philosopher extends Observable implements Runnable {
     /**
      * int value indicating the amount of time it takes to sleep in milliseconds.
      */
-    private static final int SLEEP_TIME_MS = 2000;
+    private static final int SLEEP_TIME_MS = 2;
 
     /**
      * int value indicating the amount of time it takes to eat in milliseconds.
      */
-    private static final int EAT_TIME_MS = 1000;
+    private static final int EAT_TIME_MS = 1;
 
     /**
      * int id of an philosophers to be able to identify him later.
@@ -134,21 +134,21 @@ public class Philosopher extends Observable implements Runnable {
             boolean eaten = false;
             ChairRemote chair = dininghall.getChair(id);
             if (chair == null) {
-                chair = dininghall.clientSearch(id);
-                LOGGER.info("Remote Chair aquired[" + id + "]");
-                if((chair = dininghall.getQueueChair(this)) != null){
+                if ((chair = dininghall.getQueueChair(this)) != null) {
                     waiting = true;
-                    synchronized (chair){
+                    synchronized (chair) {
                         LOGGER.info("Philosopher [" + id + "] waiting for notification\n");
-                        while(waiting) {
+                        while (waiting) {
                             chair.wait();
                         }
                     }
                     chair = dininghall.getChair(id);
                 }
-                if(chair == null){
+                if (chair == null) {
                     chair = dininghall.clientSearch(id);
-                    LOGGER.info("Remote Chair aquired");
+                    if (chair != null) {
+                        LOGGER.info("Remote Chair[" + chair.getId() + "] aquired from " + id);
+                    }
                 }
             }
             if (chair != null) {
@@ -175,7 +175,7 @@ public class Philosopher extends Observable implements Runnable {
                 }
                 try {
                     chair.setTaken(false);
-                    if(eaten){
+                    if (eaten) {
                         notifyOb();
                     }
                 } catch (RemoteException e) {
@@ -217,7 +217,7 @@ public class Philosopher extends Observable implements Runnable {
         return id;
     }
 
-    public void setWaitingStatus(boolean status){
+    public void setWaitingStatus(boolean status) {
         this.waiting = status;
     }
 

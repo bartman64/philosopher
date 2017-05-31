@@ -12,6 +12,4 @@ public interface ServerControl extends Remote {
 
     ChairRemote searchFreeChair(final int philosoperId) throws RemoteException;
 
-    ForkRemote getRemoteRightFork(final ChairRemote chair, final ClientControl currentClient, final int philId) throws RemoteException;
-
 }

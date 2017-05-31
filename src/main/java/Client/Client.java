@@ -59,6 +59,8 @@ public class Client implements ClientControl {
      */
     private ServerControl server;
 
+    private int totalSeats;
+
 
     /**
      * Tablemaster over seeing the philosophers
@@ -80,10 +82,16 @@ public class Client implements ClientControl {
         this.id = id;
     }
 
+    public int getTotalSeats() {
+        return totalSeats;
+    }
+
     @Override
-    public void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int startValue) throws RemoteException {
+    public void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int startValue, final int totalSeats) throws RemoteException {
         this.numberOfPhilosophers = numberOfPhilosophers;
         this.numberOfSeats = numberOfSeats;
+        this.totalSeats = totalSeats;
+
         final int startIndicez = numberOfSeats * startValue;
         dininghall = new Dininghall(numberOfSeats, this);
         dininghall.initHall(registry, startIndicez);
@@ -130,18 +138,6 @@ public class Client implements ClientControl {
         return null;
     }
 
-    @Override
-    public ForkRemote getRightRemoteFork(final ChairRemote chair, final int philId) throws RemoteException {
-        return dininghall.getRightFork(chair, philId);
-    }
 
-    @Override
-    public ForkRemote searchRemoteRightFork(final ChairRemote chair, final int philId) {
-        try {
-            return server.getRemoteRightFork(chair, this, philId);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+
 }

@@ -2,7 +2,6 @@ package Dininghall;
 
 
 import Client.Client;
-import Client.ClientControl;
 
 import MeditationHall.Philosopher;
 import org.slf4j.Logger;
@@ -98,9 +97,6 @@ public class Dininghall {
     public synchronized ForkRemote getLeftFork(final ChairRemote chair, final int philId) {
         ForkRemote leftFork = null;
         try {
-            leftFork = forks.get(chair.getId());
-            if (!leftFork.aquireFork()) {
-                return null;
             //If the current chair is a remote chair from another table part search for the matching remote fork.
             if (isRemoteChair(chair)) {
                 try {
@@ -112,18 +108,15 @@ public class Dininghall {
                 LOGGER.info("Chair Id: " + String.valueOf(chair.getId() + " Startvalue: " + startValue));
                 leftFork = forks.get(chair.getId() - startValue);
             }
-            if (leftFork != null && leftFork.isTaken()) {
+            if (leftFork != null && !leftFork.aquireFork()) {
                 return null;
             } else if (leftFork != null) {
-                leftFork.setTaken(true);
-                LOGGER.info("\tPhilospher ["+ philId + "] took left fork: " + leftFork.getId() +" \n");
                 LOGGER.info("\tPhilospher [" + philId + "] took left fork: " + leftFork.getId());
                 return leftFork;
             }
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
@@ -136,8 +129,8 @@ public class Dininghall {
      *               For logging used.
      * @return the right fork if not already taken, null otherwise
      */
-    public Fork getRightFork(final ChairRemote chair, final int philId) {
-        final Fork rightFork;
+    public ForkRemote getRightFork(final ChairRemote chair, final int philId) {
+        final ForkRemote rightFork;
         //If the current chair is the last chair in the list
         //The right fork is the first fork in the list
         try {
@@ -145,7 +138,8 @@ public class Dininghall {
             //And Check if the current chair is the last in the list
             if (isRemoteChair(chair) || chair.equals(chairs.get(chairs.size() - 1))) {
                 String forkName;
-                if (client.getNumberOfSeats() - 1 == chair.getId()) {
+                LOGGER.info("Chair: " + chair.getId() + "check if last chair");
+                if (client.getTotalSeats() - 1 == chair.getId()) {
                     forkName = "Fork0";
                 } else {
                     forkName = "Fork" + (chair.getId() + 1);
@@ -159,10 +153,10 @@ public class Dininghall {
                 return null;
             } else {
                 LOGGER.info("\t\tPhilospher [" + philId + "] took right fork: " + rightFork.getId());
-                rightFork.setTaken(true);
                 return rightFork;
             }
         } catch (RemoteException | NotBoundException e) {
+            LOGGER.error("Status:  Phil[" + philId + "]");
             e.printStackTrace();
         }
         return null;
@@ -183,9 +177,7 @@ public class Dininghall {
      */
     public Chair getChair(final int philId) {
         for (Chair chair : chairs) {
-            if (chair.aquireChair()) {
-            if (!chair.isTaken() && !forks.get(chair.getId() - startValue).isTaken()) {
-                chair.setTaken(true);
+            if (chair.aquireChair() && !forks.get(chair.getId() - startValue).isTaken()) {
                 LOGGER.info("Philospher [" + philId + "] took chair: " + chair.getId());
                 return chair;
             }
@@ -193,14 +185,15 @@ public class Dininghall {
         return null;
     }
 
+
     /**
-     *
      * @param philosopher
      * @return
      */
-    public Chair getQueueChair(final Philosopher philosopher){
-        for(Chair chair : chairs){
-            if(chair.aquireQueuedChair(philosopher)){
+
+    public Chair getQueueChair(final Philosopher philosopher) {
+        for (Chair chair : chairs) {
+            if (chair.aquireQueuedChair(philosopher)) {
                 return chair;
             }
         }

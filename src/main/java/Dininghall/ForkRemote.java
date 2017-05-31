@@ -10,4 +10,6 @@ public interface ForkRemote extends Remote {
     boolean isTaken() throws RemoteException;
 
     int getId() throws RemoteException;
+
+    boolean aquireFork() throws RemoteException;
 }

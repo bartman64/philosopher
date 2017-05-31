@@ -87,7 +87,7 @@ public class Server implements ServerControl {
         int numberOfPhilosophers = totalPhilosophers / counter;
         for (int i = 0; i < clients.size(); i++) {
             try {
-                clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry, i);
+                clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry, i, totalSeats);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -95,7 +95,7 @@ public class Server implements ServerControl {
             //The last client gets the rest of the seats an philosophers.
             numberOfPhilosophers = deltaPhilosophers - numberOfPhilosophers < 0 || i == counter - 2 ? deltaPhilosophers : numberOfPhilosophers;
             deltaSeats -= numberOfSeats;
-            numberOfSeats = deltaSeats - numberOfSeats < 0 || i == counter - 2 ? deltaPhilosophers : numberOfSeats;
+            numberOfSeats = deltaSeats - numberOfSeats < 0 || i == counter - 2 ? deltaSeats : numberOfSeats;
         }
     }
 
@@ -109,15 +109,4 @@ public class Server implements ServerControl {
         }
     }
 
-    @Override
-    public ForkRemote getRemoteRightFork(final ChairRemote chair, final ClientControl currentClient, final int philId) throws RemoteException {
-        final int chairId = chair.getId();
-        if (chairId == totalSeats - 1) {
-            final ClientControl firstClient = clients.get(0);
-            return firstClient.getRightRemoteFork(chair, philId);
-        } else {
-            final ClientControl nextClient = clients.get(currentClient.getId() + 1);
-            return nextClient.getRightRemoteFork(chair, philId);
-        }
-    }
 }
