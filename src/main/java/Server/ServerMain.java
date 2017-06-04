@@ -7,6 +7,15 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Arrays;
 
+
+/**
+ * TODO: Logging, Kommentare verbessern & Code prüfen
+ * TODO: Paralleles stoppen bei Hinzufügen von Stühlen
+ * TODO: Dokumentation Projekt
+ * TODO: Testen Esszugriffe - Locks
+ * TODO: Proxy Methode für Server - Registry schreiben
+ * TODO: Verteilt Testen
+ */
 public class ServerMain {
     public static void main(String[] args) {
         try {
