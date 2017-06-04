@@ -172,4 +172,21 @@ public class Server implements ServerControl {
     public void setTotalPhilosophers(int totalPhilosophers) {
         this.totalPhilosophers = totalPhilosophers;
     }
+
+    public void addPhils(final int amount) {
+        int totalNew = amount;
+        int philsPerClient = amount / counter;
+        for (int i = 0; i < clients.size(); i++) {
+            try {
+                clients.get(i).addPhils(philsPerClient, totalPhilosophers);
+                totalNew -= philsPerClient;
+                philsPerClient = totalNew - philsPerClient < 0 || i == counter - 2 ? totalNew : philsPerClient;
+                setTotalPhilosophers(totalPhilosophers + philsPerClient);
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 }

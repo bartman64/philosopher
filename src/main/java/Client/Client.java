@@ -65,6 +65,7 @@ public class Client implements ClientControl {
     private int totalSeats;
 
 
+    private int startvalue;
     /**
      * Tablemaster over seeing the philosophers
      * and sends those who ate to much into a longer sleeping phase
@@ -94,7 +95,8 @@ public class Client implements ClientControl {
         this.numberOfPhilosophers = numberOfPhilosophers;
         this.numberOfSeats = numberOfSeats;
         this.totalSeats = totalSeats;
-
+        this.startvalue = startValue;
+        //TODO
         final int startIndicez = numberOfSeats * startValue;
         dininghall = new Dininghall(numberOfSeats, this);
         dininghall.initHall(registry, startIndicez);
@@ -205,5 +207,17 @@ public class Client implements ClientControl {
         LOGGER.info("Cleared client dininghall");
     }
 
+    @Override
+    public void addPhils(final int amountOfNewPhils, final int totalPhils) {
+        for (int i = totalPhils; i < totalPhils + amountOfNewPhils; i++) {
+            final Philosopher philosopher = new Philosopher(dininghall, i, tableMaster);
+            meditationHall.addPhil(philosopher);
+            final Thread thread = new Thread(philosopher);
+            threads.add(thread);
+            LOGGER.info("Philosopher[" + philosopher.getId() + "] started");
+            thread.start();
+        }
+
+    }
 
 }

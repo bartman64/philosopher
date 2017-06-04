@@ -40,4 +40,6 @@ public interface ClientControl extends Remote {
     void clearDininghall() throws RemoteException;
 
     void restartClients() throws RemoteException;
+
+    void addPhils(final int amountOfNewPhils, final int totalPhils) throws RemoteException;
 }

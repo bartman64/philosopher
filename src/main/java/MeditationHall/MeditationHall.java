@@ -59,4 +59,8 @@ public class MeditationHall {
     public List<Philosopher> getPhilosophers() {
         return philosophers;
     }
+
+    public void addPhil(final Philosopher philosopher) {
+        philosophers.add(philosopher);
+    }
 }

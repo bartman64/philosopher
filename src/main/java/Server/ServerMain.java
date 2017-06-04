@@ -24,9 +24,8 @@ public class ServerMain {
             Thread.sleep(5000);
             server.increaseTableSize(20, registry);
 
-           Thread.sleep(12000);
-            server.increaseTableSize(10, registry);
-
+            Thread.sleep(5000);
+            server.addPhils(2);
 
 
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {
