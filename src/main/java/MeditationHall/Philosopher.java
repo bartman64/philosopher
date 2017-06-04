@@ -53,6 +53,8 @@ public class Philosopher extends Observable implements Runnable {
 
     private boolean threadState;
 
+    private boolean isWaiting = false;
+
     /**
      * Constructor for the philosopher that has a dining hall to eat,
      * an id to be identified and a table master who over sees the eating..
@@ -111,6 +113,10 @@ public class Philosopher extends Observable implements Runnable {
     private void notifyOb() {
         setChanged();
         notifyObservers();
+    }
+
+    public void setWaiting(final boolean status){
+        this.isWaiting = status;
     }
 
     /**
