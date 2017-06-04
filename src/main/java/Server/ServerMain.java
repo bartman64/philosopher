@@ -16,7 +16,7 @@ public class ServerMain {
             Server server = new Server(totalSeats, totalPhilosphers);
             ServerControl serverStub = (ServerControl) UnicastRemoteObject.exportObject(server, 0);
             registry.bind("Server", serverStub);
-            Thread.sleep(6000);
+            Thread.sleep(10000);
             System.out.println(Arrays.toString(registry.list()));
             server.fillClientList(registry);
             server.initClients(registry);
@@ -27,6 +27,8 @@ public class ServerMain {
             Thread.sleep(5000);
             server.addPhils(2);
 
+            Thread.sleep(5000);
+            server.removePhils(2);
 
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {
             e.printStackTrace();

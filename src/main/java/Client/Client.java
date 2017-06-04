@@ -64,8 +64,6 @@ public class Client implements ClientControl {
 
     private int totalSeats;
 
-
-    private int startvalue;
     /**
      * Tablemaster over seeing the philosophers
      * and sends those who ate to much into a longer sleeping phase
@@ -95,15 +93,15 @@ public class Client implements ClientControl {
         this.numberOfPhilosophers = numberOfPhilosophers;
         this.numberOfSeats = numberOfSeats;
         this.totalSeats = totalSeats;
-        this.startvalue = startValue;
-        //TODO
+
         final int startIndicez = numberOfSeats * startValue;
+        final int startPhilsInidez = numberOfPhilosophers * startValue;
         dininghall = new Dininghall(numberOfSeats, this);
         dininghall.initHall(registry, startIndicez);
         meditationHall = new MeditationHall(numberOfPhilosophers, dininghall);
         tableMaster = new TableMaster(this);
         LOGGER.info(String.valueOf(startIndicez));
-        meditationHall.initPhilosophers(0, tableMaster, startIndicez);
+        meditationHall.initPhilosophers(0, tableMaster, startPhilsInidez);
         tableMaster.initMap(meditationHall.getPhilosophers());
         LOGGER.info("Client[" + getId() + "] finished initialization with Seats[" +
                 numberOfSeats + "] and  Philosopher[" + numberOfPhilosophers + "]\n");
@@ -218,6 +216,21 @@ public class Client implements ClientControl {
             thread.start();
         }
 
+    }
+
+    public void stopPhils(final int amount) {
+        for (int i = 0; i < amount; i++) {
+            final Philosopher philosopher = meditationHall.getPhilosophers().get(0);
+            philosopher.stopPhil();
+            meditationHall.removePhil(philosopher);
+            LOGGER.info("Removed Phil with id [" + philosopher.getId() + "]");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
 }

@@ -42,4 +42,6 @@ public interface ClientControl extends Remote {
     void restartClients() throws RemoteException;
 
     void addPhils(final int amountOfNewPhils, final int totalPhils) throws RemoteException;
+
+    void stopPhils(final int amount) throws RemoteException;
 }

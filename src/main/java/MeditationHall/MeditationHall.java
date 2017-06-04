@@ -63,4 +63,8 @@ public class MeditationHall {
     public void addPhil(final Philosopher philosopher) {
         philosophers.add(philosopher);
     }
+
+    public void removePhil(final Philosopher philosopher) {
+        philosophers.remove(philosopher);
+    }
 }

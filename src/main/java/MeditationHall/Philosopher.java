@@ -19,22 +19,22 @@ public class Philosopher extends Observable implements Runnable {
     /**
      * int value indicating the max amount of times the philosopher can eat before he goes to sleep.
      */
-    private static final int MAX_EAT_COUNTER = 3;
+    private static final int MAX_EAT_COUNTER = 30;
 
     /**
      * int value indicating the amount of time it takes to sleep in milliseconds.
      */
-    private static final int SLEEP_TIME_MS = 10;
+    private static final int SLEEP_TIME_MS = 100;
 
     /**
      * int value indicating the amount of time it takes to eat in milliseconds.
      */
-    private static final int EAT_TIME_MS = 1;
+    private static final int EAT_TIME_MS = 10;
 
     /**
      * int value indicating the amount if time it takes to meditate in milliseconds.
      */
-    private int medtime_ms = 5;
+    private int medtime_ms = 50;
 
     /**
      * int id of an philosophers to be able to identify him later.
@@ -60,6 +60,12 @@ public class Philosopher extends Observable implements Runnable {
     private boolean threadState;
 
     private boolean isWaiting = false;
+
+    private boolean running = true;
+
+    public void stopPhil() {
+        this.running = false;
+    }
 
     public void setWaiting(boolean waiting) {
         isWaiting = waiting;
@@ -106,7 +112,7 @@ public class Philosopher extends Observable implements Runnable {
      * The process of meditating, eating and sleeping if the max eat counter is surpassed.
      */
     public void run() {
-        while (true) {
+        while (running) {
             try {
                 synchronized (dininghall) {
                     while (!threadState) {
@@ -124,8 +130,7 @@ public class Philosopher extends Observable implements Runnable {
                 eatCounter = 0;
             }
         }
-
-
+        LOGGER.info("Got DELETED!!!!!");
     }
 
     /**
