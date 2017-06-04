@@ -33,5 +33,11 @@ public interface ClientControl extends Remote {
 
     int avgCalc() throws RemoteException;
 
-    int getTotalAvg() throws  RemoteException;
+    int getTotalAvg() throws RemoteException;
+
+    void initNewTable(final int numberOfSeats, final Registry registry, final int startValue, final int totalSeats) throws RemoteException;
+
+    void clearDininghall() throws RemoteException;
+
+    void restartClients() throws RemoteException;
 }

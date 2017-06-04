@@ -31,10 +31,14 @@ public class Dininghall {
      */
     private final List<Fork> forks;
 
+    public void setNumberOfPlaces(int numberOfPlaces) {
+        this.numberOfPlaces = numberOfPlaces;
+    }
+
     /**
      * int number of places.
      */
-    private final int numberOfPlaces;
+    private int numberOfPlaces;
 
     /**
      * ClientControl needed to contact the server for seats.
@@ -61,6 +65,14 @@ public class Dininghall {
         this.client = client;
     }
 
+    public List<Fork> getForks() {
+        return forks;
+    }
+
+    public List<Chair> getChairs() {
+        return chairs;
+    }
+
     /**
      * This method initializes the hall with chairs and forks.
      * When the number of places equals one, an extra fork will be created.
@@ -84,6 +96,7 @@ public class Dininghall {
             forks.add(new Fork(numberOfPlaces));
         }
     }
+
 
     /**
      * This method gets the left fork for the matching chair,
@@ -197,14 +210,14 @@ public class Dininghall {
         for (; start < size; start++) {
             Chair chair = chairs.get(start);
             if (chair.aquireChair()) {
-                System.out.printf("Philospher [%d] took chair: %d\n", philId, chair.getId());
+                LOGGER.info("Philospher [" + philId + "]took chair:" + chair.getId());
                 return chair;
             }
         }
         for (int i = 0; i < start; i++) {
             Chair chair = chairs.get(start);
             if (chair.aquireChair()) {
-                System.out.printf("Philospher [%d] took chair: %d\n", philId, chair.getId());
+                LOGGER.info("Philospher [" + philId + "]took chair:" + chair.getId());
                 return chair;
             }
         }
@@ -238,26 +251,28 @@ public class Dininghall {
      * @return
      */
     public ForkRemote aquireWaitFork(final ChairRemote chair, final String fork) {
-        ForkRemote waitFork;
+        ForkRemote waitFork = null;
+        int chairId = 0;
         try {
+            chairId = chair.getId();
             if ("left".equals(fork)) {
                 if (isRemoteChair(chair)) {
-                    waitFork = (ForkRemote) registry.lookup("Fork" + chair.getId());
+                    waitFork = (ForkRemote) registry.lookup("Fork" + chairId);
                 } else {
-                    waitFork = forks.get(chair.getId());
-                }
-            } else {
-                if (isRemoteChair(chair) || chair.equals(chairs.get(chairs.size() - 1))) {
-                    waitFork = getRemoteFork(chair);
-                } else {
-                    waitFork = forks.get(chair.getId() + 1);
+                    waitFork = forks.get(chairId - startValue);
                 }
             }
             return waitFork;
-        } catch (final RemoteException | NotBoundException e) {
+        } catch (final Exception e) {
+            LOGGER.error("Chair id: " + chairId + "Fork: " + fork);
             throw new RuntimeException();
         }
 
+    }
+
+    public void resetLists() {
+        forks.clear();
+        chairs.clear();
     }
 
 }

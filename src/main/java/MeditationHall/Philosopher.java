@@ -59,6 +59,12 @@ public class Philosopher extends Observable implements Runnable {
 
     private boolean threadState;
 
+    private boolean isWaiting = false;
+
+    public void setWaiting(boolean waiting) {
+        isWaiting = waiting;
+    }
+
     /**
      * Constructor for the philosopher that has a dining hall to eat,
      * an id to be identified and a table master who over sees the eating..
@@ -100,7 +106,16 @@ public class Philosopher extends Observable implements Runnable {
      * The process of meditating, eating and sleeping if the max eat counter is surpassed.
      */
     public void run() {
-        while (threadState) {
+        while (true) {
+            try {
+                synchronized (dininghall) {
+                    while (!threadState) {
+                        dininghall.wait();
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             meditate();
             eat();
             if (eatCounter == MAX_EAT_COUNTER) {
@@ -109,6 +124,8 @@ public class Philosopher extends Observable implements Runnable {
                 eatCounter = 0;
             }
         }
+
+
     }
 
     /**
@@ -131,7 +148,7 @@ public class Philosopher extends Observable implements Runnable {
                 if ((chair = dininghall.getQueueChair(this)) != null) {
                     synchronized (chair) {
                         LOGGER.info("Philosopher [" + id + "] waiting for notification");
-                        while (chair.isTaken()) {
+                        while (isWaiting) {
                             chair.wait();
                         }
                     }
@@ -158,27 +175,31 @@ public class Philosopher extends Observable implements Runnable {
                 }
 
                 ForkRemote rightFork = dininghall.getRightFork(chair, id);
+                if (leftFork != null) {
+                    if (rightFork == null) {
+                        Thread.sleep(0, 500);
+                        rightFork = dininghall.getRightFork(chair, id);
+                    }
+                    if (rightFork != null) {
+                        LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating");
+                        Thread.sleep(EAT_TIME_MS);
+                        eatCounter++;
+                        totalEatCounter++;
+                        leftFork.setTaken(false);
+                        rightFork.setTaken(false);
+                        LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
+                        LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
 
-                if (rightFork == null) {
-                    Thread.sleep(0, 500);
-                    rightFork = dininghall.getRightFork(chair, id);
-                }
-                if (rightFork != null) {
-                    LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating");
-                    Thread.sleep(EAT_TIME_MS);
-                    eatCounter++;
-                    totalEatCounter++;
-                    leftFork.setTaken(false);
-                    rightFork.setTaken(false);
-                    LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
-                    LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
-
-                    chair.setTaken(false);
-                    notifyOb();
-                    LOGGER.info("Philospher [" + id + "] leaves table");
+                        chair.setTaken(false);
+                        notifyOb();
+                        LOGGER.info("Philospher [" + id + "] leaves table");
+                    } else {
+                        leftFork.setTaken(false);
+                        LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
+                        chair.setTaken(false);
+                        LOGGER.info("Philospher [" + id + "] leaves table\n", id);
+                    }
                 } else {
-                    leftFork.setTaken(false);
-                    LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
                     chair.setTaken(false);
                     LOGGER.info("Philospher [" + id + "] leaves table\n", id);
                 }

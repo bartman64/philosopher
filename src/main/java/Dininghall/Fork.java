@@ -20,7 +20,7 @@ public class Fork implements ForkRemote {
 
     public synchronized void setTaken(boolean taken) {
         if (!taken) {
-            this.notify();
+            this.notifyAll();
         }
         this.taken = taken;
     }

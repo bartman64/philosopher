@@ -11,16 +11,24 @@ public class ServerMain {
     public static void main(String[] args) {
         try {
             final int totalSeats = 10;
-            final int totalPhilosphers = 20;
+            final int totalPhilosphers = 10;
             final Registry registry = LocateRegistry.createRegistry(1099);
             Server server = new Server(totalSeats, totalPhilosphers);
             ServerControl serverStub = (ServerControl) UnicastRemoteObject.exportObject(server, 0);
             registry.bind("Server", serverStub);
-            Thread.sleep(10000);
+            Thread.sleep(6000);
             System.out.println(Arrays.toString(registry.list()));
             server.fillClientList(registry);
             server.initClients(registry);
             server.startClients();
+            Thread.sleep(5000);
+            server.increaseTableSize(20, registry);
+
+           Thread.sleep(12000);
+            server.increaseTableSize(10, registry);
+
+
+
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {
             e.printStackTrace();
         }

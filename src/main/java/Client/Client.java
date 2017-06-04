@@ -4,6 +4,8 @@ package Client;
 import Dininghall.Dininghall;
 import Dininghall.ChairRemote;
 import Dininghall.TableMaster;
+import Dininghall.Chair;
+import Dininghall.Fork;
 import Dininghall.ForkRemote;
 import MeditationHall.MeditationHall;
 import MeditationHall.Philosopher;
@@ -43,6 +45,7 @@ public class Client implements ClientControl {
      * List of threads containing the runnable philosophers.
      */
     private final List<Thread> threads;
+
 
     /**
      * Dininghall containing the seats and the forks.
@@ -102,6 +105,16 @@ public class Client implements ClientControl {
         tableMaster.initMap(meditationHall.getPhilosophers());
         LOGGER.info("Client[" + getId() + "] finished initialization with Seats[" +
                 numberOfSeats + "] and  Philosopher[" + numberOfPhilosophers + "]\n");
+        for (Philosopher philosopher : meditationHall.getPhilosophers()) {
+            LOGGER.info("Phils: [" + philosopher.getId() + "]");
+        }
+        for (Chair chair : dininghall.getChairs()) {
+            LOGGER.info("Chair: [" + chair.getId() + "]");
+        }
+
+        for (Fork fork : dininghall.getForks()) {
+            LOGGER.info("Fork: [" + fork.getId() + "]");
+        }
     }
 
     @Override
@@ -111,6 +124,16 @@ public class Client implements ClientControl {
             final Thread thread = new Thread(philosopher);
             threads.add(thread);
             thread.start();
+        }
+    }
+
+    @Override
+    public void restartClients() {
+        for (final Philosopher philosopher : meditationHall.getPhilosophers()) {
+            philosopher.setThreadState(true);
+        }
+        synchronized (dininghall) {
+            dininghall.notifyAll();
         }
     }
 
@@ -150,4 +173,37 @@ public class Client implements ClientControl {
             throw new RuntimeException();
         }
     }
+
+    @Override
+    public void initNewTable(final int numberOfSeats, final Registry registry, final int startValue, final int totalSeats) throws RemoteException {
+        this.numberOfSeats = numberOfSeats;
+        this.totalSeats = totalSeats;
+
+        final int startIndicez = numberOfSeats * startValue;
+        dininghall.setNumberOfPlaces(numberOfSeats);
+        dininghall.initHall(registry, startIndicez);
+
+
+        LOGGER.info("Client[" + getId() + "] finished initialization with Seats[" +
+                numberOfSeats + "] and  Philosopher[" + numberOfPhilosophers + "]\n");
+    }
+
+    @Override
+    public void clearDininghall() {
+        for (final Philosopher philosopher : meditationHall.getPhilosophers()) {
+            philosopher.setThreadState(false);
+        }
+        for (Philosopher philosopher : meditationHall.getPhilosophers()) {
+            LOGGER.info("[" + philosopher.getId() + "] ate " + philosopher.getTotalEatCounter() + " times.");
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        dininghall.resetLists();
+        LOGGER.info("Cleared client dininghall");
+    }
+
+
 }

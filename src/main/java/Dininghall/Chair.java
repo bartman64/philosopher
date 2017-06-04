@@ -42,7 +42,9 @@ public class Chair implements ChairRemote {
         this.taken = taken;
         if (queuedPhil != null && !taken) {
             LOGGER.info("Chair [" + id + "] Notified Philosopher [" + queuedPhil.getId() + "]");
-            this.notifyAll();
+            queuedPhil.setWaiting(false);
+            this.notify();
+
             resetQueue();
         }
     }
@@ -61,6 +63,7 @@ public class Chair implements ChairRemote {
         if (this.taken && this.queuedPhil == null) {
             aquired = true;
             this.queuedPhil = philosopher;
+            queuedPhil.setWaiting(true);
             LOGGER.info("Added Philosopher [" + queuedPhil.getId() + "] to the queue of chair[" + id + "]");
         }
         return aquired;

@@ -4,6 +4,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import Client.ClientControl;
@@ -21,6 +22,7 @@ public class Server implements ServerControl {
      * Also used to set the id for each client.
      */
     private static int counter = 0;
+
 
     /**
      * Int value number of total seats in the system.
@@ -88,7 +90,7 @@ public class Server implements ServerControl {
         for (int i = 0; i < clients.size(); i++) {
             try {
                 clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry, i, totalSeats);
-                LOGGER.info("Clien[" + i + "] with Seats: " + numberOfSeats + " and Phils: " + numberOfPhilosophers);
+                LOGGER.info("Client[" + i + "] with Seats: " + numberOfSeats + " and Phils: " + numberOfPhilosophers);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -124,4 +126,50 @@ public class Server implements ServerControl {
         return totalAvg;
     }
 
+
+    private void initNewTable(final Registry registry) {
+        int deltaSeats = totalSeats;
+        int numberOfSeats = totalSeats / counter;
+
+        for (int i = 0; i < clients.size(); i++) {
+            try {
+                clients.get(i).initNewTable(numberOfSeats, registry, i, totalSeats);
+                LOGGER.info("Client[" + i + "] with Seats: " + numberOfSeats);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            deltaSeats -= numberOfSeats;
+            numberOfSeats = deltaSeats - numberOfSeats < 0 || i == counter - 2 ? deltaSeats : numberOfSeats;
+        }
+    }
+
+    public void increaseTableSize(final int newSeatAmount, final Registry registry) {
+        try {
+
+            for (final ClientControl client : clients) {
+                client.clearDininghall();
+            }
+            for (int i = 0; i < totalSeats; i++) {
+                registry.unbind("Chair" + i);
+                registry.unbind("Fork" + i);
+            }
+            setTotalSeats(newSeatAmount);
+            initNewTable(registry);
+            for (final ClientControl clientControl : clients) {
+                clientControl.restartClients();
+                LOGGER.info("Restart clients");
+            }
+        } catch (RemoteException | NotBoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void setTotalSeats(int totalSeats) {
+        this.totalSeats = totalSeats;
+    }
+
+    public void setTotalPhilosophers(int totalPhilosophers) {
+        this.totalPhilosophers = totalPhilosophers;
+    }
 }
