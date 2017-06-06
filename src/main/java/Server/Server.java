@@ -1,8 +1,10 @@
 package Server;
 
 import java.rmi.NotBoundException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,9 +54,9 @@ public class Server implements ServerControl {
     }
 
     @Override
-    public ChairRemote searchFreeChair(final int philosoperId) throws RemoteException {
+    public ChairRemote searchFreeChair(final int philosopherId) throws RemoteException {
         for (final ClientControl client : clients) {
-            final ChairRemote chair = client.searchEmptyChair(philosoperId);
+            final ChairRemote chair = client.searchEmptyChair(philosopherId);
             if (chair != null) {
                 return chair;
             }
@@ -143,15 +145,18 @@ public class Server implements ServerControl {
         }
     }
 
+
     public void increaseTableSize(final int newSeatAmount, final Registry registry) {
         try {
 
             for (final ClientControl client : clients) {
                 client.clearDininghall();
             }
+            Thread.sleep(1000);
             for (int i = 0; i < totalSeats; i++) {
                 registry.unbind("Chair" + i);
                 registry.unbind("Fork" + i);
+
             }
             setTotalSeats(newSeatAmount);
             initNewTable(registry);
@@ -159,7 +164,7 @@ public class Server implements ServerControl {
                 clientControl.restartClients();
                 LOGGER.info("Restart clients");
             }
-        } catch (RemoteException | NotBoundException e) {
+        } catch (RemoteException | NotBoundException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -206,5 +211,16 @@ public class Server implements ServerControl {
         }
         LOGGER.info("Removed " + amount + "phils");
 
+    }
+
+    public void stopClients() {
+        for (final ClientControl client : clients) {
+            try {
+                client.stopClient();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        LOGGER.info("STOPPED");
     }
 }

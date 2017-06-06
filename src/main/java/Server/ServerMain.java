@@ -10,9 +10,9 @@ import java.util.Arrays;
 
 /**
  * TODO: Logging, Kommentare verbessern & Code prüfen
- * TODO: Paralleles stoppen bei Hinzufügen von Stühlen
+ * TODO: Paralleles stoppen bei Hinzufügen von Stühlen [DONE]
  * TODO: Dokumentation Projekt
- * TODO: Testen Esszugriffe - Locks
+ * TODO: Testen Esszugriffe - Locks [DONE]
  * TODO: Proxy Methode für Server - Registry schreiben
  * TODO: Verteilt Testen
  */
@@ -38,6 +38,8 @@ public class ServerMain {
 
             Thread.sleep(5000);
             server.removePhils(2);
+            Thread.sleep(5000);
+            server.stopClients();
 
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {
             e.printStackTrace();

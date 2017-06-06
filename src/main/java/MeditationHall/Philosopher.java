@@ -19,22 +19,22 @@ public class Philosopher extends Observable implements Runnable {
     /**
      * int value indicating the max amount of times the philosopher can eat before he goes to sleep.
      */
-    private static final int MAX_EAT_COUNTER = 30;
+    private static final int MAX_EAT_COUNTER = 3;
 
     /**
      * int value indicating the amount of time it takes to sleep in milliseconds.
      */
-    private static final int SLEEP_TIME_MS = 100;
+    private static final int SLEEP_TIME_MS = 1;
 
     /**
      * int value indicating the amount of time it takes to eat in milliseconds.
      */
-    private static final int EAT_TIME_MS = 10;
+    private static final int EAT_TIME_MS = 1;
 
     /**
      * int value indicating the amount if time it takes to meditate in milliseconds.
      */
-    private int medtime_ms = 50;
+    private int medtime_ms = 5;
 
     /**
      * int id of an philosophers to be able to identify him later.

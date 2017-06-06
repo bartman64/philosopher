@@ -103,6 +103,10 @@ public class Client implements ClientControl {
         LOGGER.info(String.valueOf(startIndicez));
         meditationHall.initPhilosophers(0, tableMaster, startPhilsInidez);
         tableMaster.initMap(meditationHall.getPhilosophers());
+        LogInitData(numberOfPhilosophers, numberOfSeats);
+    }
+
+    private void LogInitData(int numberOfPhilosophers, int numberOfSeats) {
         LOGGER.info("Client[" + getId() + "] finished initialization with Seats[" +
                 numberOfSeats + "] and  Philosopher[" + numberOfPhilosophers + "]\n");
         for (Philosopher philosopher : meditationHall.getPhilosophers()) {
@@ -182,27 +186,58 @@ public class Client implements ClientControl {
         final int startIndicez = numberOfSeats * startValue;
         dininghall.setNumberOfPlaces(numberOfSeats);
         dininghall.initHall(registry, startIndicez);
-
-
-        LOGGER.info("Client[" + getId() + "] finished initialization with Seats[" +
-                numberOfSeats + "] and  Philosopher[" + numberOfPhilosophers + "]\n");
+        LogInitData(numberOfPhilosophers, numberOfSeats);
     }
 
     @Override
     public void clearDininghall() {
-        for (final Philosopher philosopher : meditationHall.getPhilosophers()) {
-            philosopher.setThreadState(false);
+        final Thread myThread = new Thread(new MyThread());
+        myThread.start();
+    }
+
+    public class MyThread implements Runnable {
+
+        @Override
+        public void run() {
+            for (final Philosopher philosopher : meditationHall.getPhilosophers()) {
+                philosopher.setThreadState(false);
+            }
+            for (Philosopher philosopher : meditationHall.getPhilosophers()) {
+                LOGGER.info("[" + philosopher.getId() + "] ate " + philosopher.getTotalEatCounter() + " times.");
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            dininghall.resetLists();
+            LOGGER.info("Cleared client dininghall");
         }
-        for (Philosopher philosopher : meditationHall.getPhilosophers()) {
-            LOGGER.info("[" + philosopher.getId() + "] ate " + philosopher.getTotalEatCounter() + " times.");
+    }
+
+    public void stopClient() {
+        final Thread thread = new Thread(new Stop());
+        thread.start();
+    }
+
+    public class Stop implements Runnable {
+
+        @Override
+        public void run() {
+            for (final Philosopher philosopher : meditationHall.getPhilosophers()) {
+                philosopher.stopPhil();
+            }
+            for (final Thread thread : threads) {
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            for (Philosopher philosopher : meditationHall.getPhilosophers()) {
+                LOGGER.info("[" + philosopher.getId() + "] ate " + philosopher.getTotalEatCounter() + " times.");
+            }
         }
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        dininghall.resetLists();
-        LOGGER.info("Cleared client dininghall");
     }
 
     @Override

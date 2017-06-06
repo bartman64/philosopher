@@ -73,6 +73,7 @@ public class Dininghall {
         return chairs;
     }
 
+
     /**
      * This method initializes the hall with chairs and forks.
      * When the number of places equals one, an extra fork will be created.
@@ -273,6 +274,9 @@ public class Dininghall {
     public void resetLists() {
         forks.clear();
         chairs.clear();
+        LOGGER.info("Clear Lists");
+        System.out.println(forks.toString());
+        System.out.println(chairs.toString());
     }
 
 }
