@@ -97,18 +97,24 @@ public class Server implements ServerControl {
         int deltaPhilosophers = totalPhilosophers;
         int numberOfSeats = totalSeats / counter;
         int numberOfPhilosophers = totalPhilosophers / counter;
+        int prevSeats = 0;
+        int prevPhils = 0;
         for (int i = 0; i < clients.size(); i++) {
             try {
-                clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry, i, totalSeats);
+                clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry, prevSeats, prevPhils, totalSeats);
                 LOGGER.info("Client[" + i + "] with Seats: " + numberOfSeats + " and Phils: " + numberOfPhilosophers);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
+            prevSeats += numberOfSeats;
+            prevPhils += numberOfPhilosophers;
+
             deltaPhilosophers -= numberOfPhilosophers;
             //The last client gets the rest of the seats an philosophers.
             numberOfPhilosophers = deltaPhilosophers - numberOfPhilosophers < 0 || i == counter - 2 ? deltaPhilosophers : numberOfPhilosophers;
             deltaSeats -= numberOfSeats;
             numberOfSeats = deltaSeats - numberOfSeats < 0 || i == counter - 2 ? deltaSeats : numberOfSeats;
+
         }
     }
 
@@ -138,14 +144,15 @@ public class Server implements ServerControl {
 
     /**
      * Bind a Remote obj to the Server that isn't running on the same System as the Server.
+     *
      * @param name name of the remote obj
-     * @param obj remote obj
+     * @param obj  remote obj
      * @return String that indicates success
      * @throws RemoteException on failure
      */
     @Override
     public String proxyBind(String name, Remote obj) throws RemoteException {
-        String res = "Registered" + name +" successfully!";
+        String res = "Registered" + name + " successfully!";
         Runnable bindToRegistry = () -> {
             try {
                 registry.bind(name, obj);

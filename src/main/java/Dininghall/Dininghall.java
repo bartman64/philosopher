@@ -88,7 +88,7 @@ public class Dininghall {
                 ChairRemote chair = (ChairRemote) UnicastRemoteObject.exportObject(chairs.get(i - startValue), 0);
                 ForkRemote fork = (ForkRemote) UnicastRemoteObject.exportObject(forks.get(i - startValue), 0);
                 client.proxyBind("Chair"+i, chair);
-                client.proxyBind("Fork"+i, chair);
+                client.proxyBind("Fork"+i, fork);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }

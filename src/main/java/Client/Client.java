@@ -90,19 +90,17 @@ public class Client implements ClientControl {
     }
 
     @Override
-    public void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int startValue, final int totalSeats) throws RemoteException {
+    public void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int prevSeats, final int prevPhils, final int totalSeats) throws RemoteException {
         this.numberOfPhilosophers = numberOfPhilosophers;
         this.numberOfSeats = numberOfSeats;
         this.totalSeats = totalSeats;
 
-        final int startIndicez = numberOfSeats * startValue;
-        final int startPhilsInidez = numberOfPhilosophers * startValue;
         dininghall = new Dininghall(numberOfSeats, this);
-        dininghall.initHall(registry, startIndicez);
+        dininghall.initHall(registry, prevSeats);
         meditationHall = new MeditationHall(numberOfPhilosophers, dininghall);
         tableMaster = new TableMaster(this);
-        LOGGER.info(String.valueOf(startIndicez));
-        meditationHall.initPhilosophers(0, tableMaster, startPhilsInidez);
+
+        meditationHall.initPhilosophers(0, tableMaster, prevPhils);
         tableMaster.initMap(meditationHall.getPhilosophers());
         LogInitData(numberOfPhilosophers, numberOfSeats);
     }

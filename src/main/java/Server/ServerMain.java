@@ -38,7 +38,7 @@ public class ServerMain {
 
             Thread.sleep(5000);
             server.removePhils(2);
-            Thread.sleep(5000);
+            Thread.sleep(1000);
             server.stopClients();
 
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {

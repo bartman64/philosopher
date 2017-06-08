@@ -63,13 +63,6 @@ public class Philosopher extends Observable implements Runnable {
 
     private boolean running = true;
 
-    public void stopPhil() {
-        this.running = false;
-    }
-
-    public void setWaiting(boolean waiting) {
-        isWaiting = waiting;
-    }
 
     /**
      * Constructor for the philosopher that has a dining hall to eat,
@@ -258,5 +251,13 @@ public class Philosopher extends Observable implements Runnable {
 
     public synchronized void setThreadState(boolean threadState) {
         this.threadState = threadState;
+    }
+
+    public void stopPhil() {
+        this.running = false;
+    }
+
+    public void setWaiting(boolean waiting) {
+        isWaiting = waiting;
     }
 }

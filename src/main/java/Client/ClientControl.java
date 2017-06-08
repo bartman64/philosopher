@@ -20,7 +20,7 @@ public interface ClientControl extends Remote {
      * @param numberOfSeats        amount of philosopher in the client system.
      * @throws RemoteException if an remote error occurs
      */
-    void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int startValue, final int totalSeats) throws RemoteException;
+    void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int prevSeats, final int prevPhils, final int totalSeats) throws RemoteException;
 
     /**
      * This method start the runnable philosophers and the tablemaster thread.
