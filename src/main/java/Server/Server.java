@@ -1,5 +1,6 @@
 package Server;
 
+import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -42,10 +43,17 @@ public class Server implements ServerControl {
     private final List<ClientControl> clients;
 
 
-    public Server(final int totalSeats, final int totalPhilosopher) {
+    /**
+     * Registry needed to call proxyBind.
+     */
+    private final Registry registry;
+
+
+    public Server(final int totalSeats, final int totalPhilosopher, Registry registry) {
         clients = new ArrayList<>();
         this.totalSeats = totalSeats;
         this.totalPhilosophers = totalPhilosopher;
+        this.registry = registry;
     }
 
     @Override
@@ -126,6 +134,32 @@ public class Server implements ServerControl {
         }
         totalAvg /= clients.size();
         return totalAvg;
+    }
+
+    /**
+     * Bind a Remote obj to the Server that isn't running on the same System as the Server.
+     * @param name name of the remote obj
+     * @param obj remote obj
+     * @return String that indicates success
+     * @throws RemoteException on failure
+     */
+    @Override
+    public String proxyBind(String name, Remote obj) throws RemoteException {
+        String res = "Registered" + name +" successfully!";
+        Runnable bindToRegistry = () -> {
+            try {
+                registry.bind(name, obj);
+                System.out.print("Registered " + name + "\n");
+            } catch (RemoteException | AlreadyBoundException e) {
+                e.printStackTrace();
+            }
+        };
+
+        Thread binder = new Thread(bindToRegistry);
+
+        binder.start();
+
+        return res;
     }
 
 

@@ -22,7 +22,7 @@ public class ServerMain {
             final int totalSeats = 10;
             final int totalPhilosphers = 10;
             final Registry registry = LocateRegistry.createRegistry(1099);
-            Server server = new Server(totalSeats, totalPhilosphers);
+            Server server = new Server(totalSeats, totalPhilosphers, registry);
             ServerControl serverStub = (ServerControl) UnicastRemoteObject.exportObject(server, 0);
             registry.bind("Server", serverStub);
             Thread.sleep(10000);

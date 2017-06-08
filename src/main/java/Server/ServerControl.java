@@ -14,4 +14,6 @@ public interface ServerControl extends Remote {
 
     int calcTotalAvg() throws RemoteException;
 
+    String proxyBind(String name, Remote obj) throws RemoteException;
+
 }
