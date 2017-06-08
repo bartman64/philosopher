@@ -44,7 +44,6 @@ public class Chair implements ChairRemote {
             LOGGER.info("Chair [" + id + "] Notified Philosopher [" + queuedPhil.getId() + "]");
             queuedPhil.setWaiting(false);
             this.notify();
-
             resetQueue();
         }
     }
