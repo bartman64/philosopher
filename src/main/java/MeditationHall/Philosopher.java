@@ -22,7 +22,7 @@ public class Philosopher extends Observable implements Runnable {
     /**
      * int value indicating the amount of time it takes to sleep in milliseconds.
      */
-    private static final int SLEEP_TIME_MS = 1;
+    private static final int SLEEP_TIME_MS = 10;
 
     /**
      * int value indicating the amount of time it takes to eat in milliseconds.
@@ -225,7 +225,7 @@ public class Philosopher extends Observable implements Runnable {
      */
     private ForkRemote waitForLeftFork(ChairRemote chair) throws RemoteException, InterruptedException {
         ForkRemote leftFork;
-        leftFork = dininghall.aquireWaitFork(chair, "left");
+        leftFork = dininghall.aquireWaitFork(chair);
         synchronized (leftFork) {
             LOGGER.info("\t\tPhilosopher [" + id + "] is waiting for LeftFork[" + leftFork.getId() + "]");
             while (leftFork.isTaken()) {

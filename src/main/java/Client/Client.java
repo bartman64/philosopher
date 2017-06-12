@@ -6,7 +6,6 @@ import Dininghall.ChairRemote;
 import Dininghall.TableMaster;
 import Dininghall.Chair;
 import Dininghall.Fork;
-import Dininghall.ForkRemote;
 import MeditationHall.MeditationHall;
 import MeditationHall.Philosopher;
 import Server.ServerControl;
@@ -189,11 +188,11 @@ public class Client implements ClientControl {
 
     @Override
     public void clearDininghall() {
-        final Thread myThread = new Thread(new MyThread());
+        final Thread myThread = new Thread(new Client.PhilosopherPause());
         myThread.start();
     }
 
-    public class MyThread implements Runnable {
+    private class PhilosopherPause implements Runnable {
 
         @Override
         public void run() {
@@ -214,11 +213,11 @@ public class Client implements ClientControl {
     }
 
     public void stopClient() {
-        final Thread thread = new Thread(new Stop());
+        final Thread thread = new Thread(new Client.PhilosophStopper());
         thread.start();
     }
 
-    public class Stop implements Runnable {
+    public class PhilosophStopper implements Runnable {
 
         @Override
         public void run() {
@@ -251,8 +250,13 @@ public class Client implements ClientControl {
 
     }
 
+    @Override
     public void stopPhils(final int amount) {
-        for (int i = 0; i < amount; i++) {
+        int amountToDelete = amount;
+        if (meditationHall.getPhilosophers().size() < amount) {
+            amountToDelete = meditationHall.getPhilosophers().size();
+        }
+        for (int i = 0; i < amountToDelete; i++) {
             final Philosopher philosopher = meditationHall.getPhilosophers().get(0);
             philosopher.stopPhil();
             meditationHall.removePhil(philosopher);

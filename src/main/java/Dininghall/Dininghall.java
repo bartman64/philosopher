@@ -190,16 +190,6 @@ public class Dininghall {
     }
 
     /**
-     * This method iterates through the list of chairs,
-     * tries to find a chair which is not taken
-     * with the left fork which not taken.
-     *
-     * @param philId Id of the philosopher trying to get the fork.
-     *               For logging used.
-     * @return chair if not taken and has left fork, null otherwise
-     */
-
-    /**
      * This method iterates random through the list of chairs,
      * tries to find a chair which is not taken
      * with the left fork which not taken.
@@ -250,27 +240,23 @@ public class Dininghall {
 
 
     /**
-     * Returns the fork as a lock in order for the philosopher to wait on it
+     * Returns the fork as a lock in order for the philosopher to wait on it.
      *
-     * @param chair
-     * @param fork
-     * @return
+     * @param chair Chair needed to get the matching left fork
+     * @return fork on which the philosopher waits
      */
-    public ForkRemote aquireWaitFork(final ChairRemote chair, final String fork) {
-        ForkRemote waitFork = null;
+    public ForkRemote aquireWaitFork(final ChairRemote chair) {
+        ForkRemote waitFork;
         int chairId = 0;
         try {
             chairId = chair.getId();
-            if ("left".equals(fork)) {
-                if (isRemoteChair(chair)) {
-                    waitFork = (ForkRemote) registry.lookup("Fork" + chairId);
-                } else {
-                    waitFork = forks.get(chairId - startValue);
-                }
+            if (isRemoteChair(chair)) {
+                waitFork = (ForkRemote) registry.lookup("Fork" + chairId);
+            } else {
+                waitFork = forks.get(chairId - startValue);
             }
             return waitFork;
         } catch (final Exception e) {
-            LOGGER.error("Chair id: " + chairId + "Fork: " + fork);
             throw new RuntimeException();
         }
 

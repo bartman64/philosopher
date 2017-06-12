@@ -5,27 +5,23 @@ import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import Client.ClientControl;
 import Dininghall.ChairRemote;
-import Dininghall.ForkRemote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Server implements ServerControl {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
+
     /**
      * Int counter counting the number of clients.
      * Also used to set the id for each client.
      */
     private static int counter = 0;
-
 
     /**
      * Int value number of total seats in the system.
@@ -41,7 +37,6 @@ public class Server implements ServerControl {
      * List of clients.
      */
     private final List<ClientControl> clients;
-
 
     /**
      * Registry needed to call proxyBind.
@@ -154,7 +149,7 @@ public class Server implements ServerControl {
         Runnable bindToRegistry = () -> {
             try {
                 registry.bind(name, obj);
-                System.out.print("Registered " + name + "\n");
+                LOGGER.info("Registered " + name);
             } catch (RemoteException | AlreadyBoundException e) {
                 e.printStackTrace();
             }
