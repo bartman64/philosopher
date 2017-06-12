@@ -34,11 +34,6 @@ public class Client implements ClientControl {
     private int numberOfPhilosophers;
 
     /**
-     * Int value for the amount of seats in the dining hall.
-     */
-    private int numberOfSeats;
-
-    /**
      * List of threads containing the runnable philosophers.
      */
     private final List<Thread> threads;
@@ -68,7 +63,6 @@ public class Client implements ClientControl {
 
     public Client() {
         this.numberOfPhilosophers = 0;
-        this.numberOfSeats = 0;
         this.threads = new ArrayList<>();
     }
 
@@ -87,19 +81,29 @@ public class Client implements ClientControl {
     @Override
     public void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int prevSeats, final int prevPhils, final int totalSeats) throws RemoteException {
         this.numberOfPhilosophers = numberOfPhilosophers;
-        this.numberOfSeats = numberOfSeats;
         this.totalSeats = totalSeats;
 
+        //Set up the dining hall
         dininghall = new Dininghall(numberOfSeats, this);
         dininghall.initHall(registry, prevSeats);
+
         meditationHall = new MeditationHall(numberOfPhilosophers, dininghall);
         tableMaster = new TableMaster(this);
 
+        //Initializes the philosophers
         meditationHall.initPhilosophers(0, tableMaster, prevPhils);
+
+        //Initializes the table master
         tableMaster.initMap(meditationHall.getPhilosophers());
         LogInitData(numberOfPhilosophers, numberOfSeats);
     }
 
+    /**
+     * This method logs the philosopher, chairs and forks which got initialized.
+     *
+     * @param numberOfPhilosophers number of philosophers
+     * @param numberOfSeats        number of seats
+     */
     private void LogInitData(int numberOfPhilosophers, int numberOfSeats) {
         LOGGER.info("Client[" + getId() + "] finished initialization with Seats[" +
                 numberOfSeats + "] and  Philosopher[" + numberOfPhilosophers + "]\n");
@@ -174,7 +178,6 @@ public class Client implements ClientControl {
 
     @Override
     public void initNewTable(final int numberOfSeats, final Registry registry, final int startValue, final int totalSeats) throws RemoteException {
-        this.numberOfSeats = numberOfSeats;
         this.totalSeats = totalSeats;
 
         final int startIndicez = numberOfSeats * startValue;
@@ -262,9 +265,9 @@ public class Client implements ClientControl {
         }
     }
 
-    public void proxyBind(final String name, Remote object){
+    public void proxyBind(final String name, Remote object) {
         try {
-            server.proxyBind(name,object );
+            server.proxyBind(name, object);
         } catch (RemoteException e) {
             e.printStackTrace();
         }

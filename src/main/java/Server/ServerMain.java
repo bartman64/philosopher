@@ -20,25 +20,25 @@ public class ServerMain {
     public static void main(String[] args) {
         try {
             final int totalSeats = 10;
-            final int totalPhilosphers = 10;
+            final int totalPhilosophers = 10;
             final Registry registry = LocateRegistry.createRegistry(1099);
-            Server server = new Server(totalSeats, totalPhilosphers, registry);
+            Server server = new Server(totalSeats, totalPhilosophers, registry);
             ServerControl serverStub = (ServerControl) UnicastRemoteObject.exportObject(server, 0);
             registry.bind("Server", serverStub);
             Thread.sleep(10000);
             System.out.println(Arrays.toString(registry.list()));
-            server.fillClientList(registry);
-            server.initClients(registry);
+            server.fillClientList();
+            server.initClients();
             server.startClients();
-            Thread.sleep(60000);
-//            server.increaseTableSize(20, registry);
-//
-//            Thread.sleep(5000);
-//            server.addPhils(2);
-//
-//            Thread.sleep(5000);
-//            server.removePhils(2);
-//            Thread.sleep(1000);
+            Thread.sleep(5000);
+            server.increaseTableSize(20);
+
+            Thread.sleep(5000);
+            server.addPhils(2);
+
+            Thread.sleep(5000);
+            server.removePhils(2);
+            Thread.sleep(5000);
             server.stopClients();
 
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {

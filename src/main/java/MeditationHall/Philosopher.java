@@ -1,10 +1,8 @@
 package MeditationHall;
 
-import Client.Client;
 import Dininghall.Dininghall;
 import Dininghall.ChairRemote;
 import Dininghall.ForkRemote;
-import Dininghall.Fork;
 import Dininghall.TableMaster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,54 +141,24 @@ public class Philosopher extends Observable implements Runnable {
         try {
             ChairRemote chair = dininghall.getChair(id);
             if (chair == null) {
-                if ((chair = dininghall.getQueueChair(this)) != null) {
-                    synchronized (chair) {
-                        LOGGER.info("Philosopher [" + id + "] waiting for notification");
-                        while (isWaiting) {
-                            chair.wait();
-                        }
-                    }
-                    chair = dininghall.getChair(id);
-                }
+                chair = tryGettingIntoQueue();
                 if (chair == null) {
-                    chair = dininghall.clientSearch(id);
-                    if (chair != null) {
-                        LOGGER.info("Remote Chair[" + chair.getId() + "] aquired from " + id);
-                    }
+                    chair = tryGettingRemoteChair();
                 }
             }
             if (chair != null) {
                 ForkRemote leftFork = dininghall.getLeftFork(chair, id);
                 if (leftFork == null) {
-                    leftFork = dininghall.aquireWaitFork(chair, "left");
-                    synchronized (leftFork) {
-                        LOGGER.info("\t\tPhilosopher [%d] is waiting for LeftFork[%d]", id, leftFork.getId());
-                        while (leftFork.isTaken()) {
-                            leftFork.wait();
-                        }
-                        leftFork = dininghall.getLeftFork(chair, id);
-                    }
+                    leftFork = waitForLeftFork(chair);
                 }
-
-                ForkRemote rightFork = dininghall.getRightFork(chair, id);
                 if (leftFork != null) {
+                    ForkRemote rightFork = dininghall.getRightFork(chair, id);
                     if (rightFork == null) {
                         Thread.sleep(0, 500);
                         rightFork = dininghall.getRightFork(chair, id);
                     }
                     if (rightFork != null) {
-                        LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating");
-                        Thread.sleep(EAT_TIME_MS);
-                        eatCounter++;
-                        totalEatCounter++;
-                        leftFork.setTaken(false);
-                        rightFork.setTaken(false);
-                        LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
-                        LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
-
-                        chair.setTaken(false);
-                        notifyOb();
-                        LOGGER.info("Philospher [" + id + "] leaves table");
+                        eatAndReleaseProcess(chair, leftFork, rightFork);
                     } else {
                         leftFork.setTaken(false);
                         LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
@@ -202,13 +170,98 @@ public class Philosopher extends Observable implements Runnable {
                     LOGGER.info("Philospher [" + id + "] leaves table\n", id);
                 }
             }
-        } catch (InterruptedException |
-                RemoteException e)
-
-        {
+        } catch (InterruptedException | RemoteException e) {
             e.printStackTrace();
         }
 
+    }
+
+    /**
+     * This method simulates the process of eating.
+     * The philosopher thread sleeps for the amount of time it takes to eat.
+     * When the eat process is done the forks and chair gets release.
+     *
+     * @param chair     Chair where the philosopher is sitting on and has to releas when finish
+     * @param leftFork  Fork needs to be release when finish
+     * @param rightFork Fork needs to be release when finish
+     * @throws InterruptedException When an interruption occurs
+     * @throws RemoteException      connection lost
+     */
+    private void eatAndReleaseProcess(ChairRemote chair, ForkRemote leftFork, ForkRemote rightFork) throws InterruptedException, RemoteException {
+        LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating");
+        Thread.sleep(EAT_TIME_MS);
+
+        eatCounter++;
+        totalEatCounter++;
+
+        leftFork.setTaken(false);
+        LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
+
+        rightFork.setTaken(false);
+        LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
+
+        chair.setTaken(false);
+        LOGGER.info("Philospher [" + id + "] leaves table");
+
+        notifyOb();
+    }
+
+    /**
+     * This method waits for the left fork to be released.
+     *
+     * @param chair Chair needed to acquire the left fork
+     * @return the left fork of the given chair
+     * @throws RemoteException      Connection lost
+     * @throws InterruptedException when an interruption occurs
+     */
+    private ForkRemote waitForLeftFork(ChairRemote chair) throws RemoteException, InterruptedException {
+        ForkRemote leftFork;
+        leftFork = dininghall.aquireWaitFork(chair, "left");
+        synchronized (leftFork) {
+            LOGGER.info("\t\tPhilosopher [" + id + "] is waiting for LeftFork[" + leftFork.getId() + "]");
+            while (leftFork.isTaken()) {
+                leftFork.wait();
+            }
+            leftFork = dininghall.getLeftFork(chair, id);
+        }
+        return leftFork;
+    }
+
+    /**
+     * This method tries to get a remote chair.
+     * It asks the server to find an empty chair
+     *
+     * @return Chair if an empty seat was found, null otherwise
+     * @throws RemoteException Connection lost
+     */
+    private ChairRemote tryGettingRemoteChair() throws RemoteException {
+        ChairRemote chair;
+        chair = dininghall.clientSearch(id);
+        if (chair != null) {
+            LOGGER.info("Remote Chair[" + chair.getId() + "] aquired from " + id);
+        }
+        return chair;
+    }
+
+    /**
+     * This method tries to find an empty queue for a chair.
+     * The philosopher waits until someone leaves the table and then tries to get a chair.
+     *
+     * @return Chair on where the philosopher seats, null otherwise
+     * @throws InterruptedException if an interruption occurs
+     */
+    private ChairRemote tryGettingIntoQueue() throws InterruptedException {
+        ChairRemote chair;
+        if ((chair = dininghall.getQueueChair(this)) != null) {
+            synchronized (chair) {
+                LOGGER.info("Philosopher [" + id + "] waiting for notification");
+                while (isWaiting) {
+                    chair.wait();
+                }
+            }
+            chair = dininghall.getChair(id);
+        }
+        return chair;
     }
 
     /**

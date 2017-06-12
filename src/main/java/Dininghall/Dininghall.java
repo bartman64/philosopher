@@ -30,10 +30,6 @@ public class Dininghall {
      */
     private final List<Fork> forks;
 
-    public void setNumberOfPlaces(int numberOfPlaces) {
-        this.numberOfPlaces = numberOfPlaces;
-    }
-
     /**
      * int number of places.
      */
@@ -181,6 +177,14 @@ public class Dininghall {
         return rightFork;
     }
 
+    /**
+     * This method checks if the given chair is a remote chair
+     * or the last chair of a client.
+     *
+     * @param chair Chair which will be checked
+     * @return true if the chair is from another client or is the last for a client
+     * @throws RemoteException Connection lost
+     */
     private boolean isRemoteChair(ChairRemote chair) throws RemoteException {
         return chair.getId() < startValue || chair.getId() >= startValue + numberOfPlaces;
     }
@@ -196,7 +200,7 @@ public class Dininghall {
      */
 
     /**
-     * This method iterates through the list of chairs,
+     * This method iterates random through the list of chairs,
      * tries to find a chair which is not taken
      * with the left fork which not taken.
      *
@@ -205,7 +209,7 @@ public class Dininghall {
      * @return chair if not taken and has left fork, null otherwise
      */
     public Chair getChair(final int philId) {
-        int size = chairs.size() - 1;
+        final int size = chairs.size() - 1;
         int start = (int) (size * Math.random());
         for (; start < size; start++) {
             Chair chair = chairs.get(start);
@@ -225,8 +229,10 @@ public class Dininghall {
     }
 
     /**
-     * @param philosopher
-     * @return
+     * This method iterates through the chairs and tries to acquire one with an empty queue.
+     *
+     * @param philosopher Philosopher which wants to acquire a empty chair
+     * @return Chair in which the philosopher got added to the queue, null otherwise
      */
 
     public Chair getQueueChair(final Philosopher philosopher) {
@@ -270,12 +276,16 @@ public class Dininghall {
 
     }
 
+    /**
+     * This method clears the list of chairs and forks.
+     */
     public void resetLists() {
         forks.clear();
         chairs.clear();
-        LOGGER.info("Clear Lists");
-        System.out.println(forks.toString());
-        System.out.println(chairs.toString());
+        LOGGER.info("Listed cleared");
     }
 
+    public void setNumberOfPlaces(int numberOfPlaces) {
+        this.numberOfPlaces = numberOfPlaces;
+    }
 }

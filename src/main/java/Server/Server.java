@@ -75,10 +75,8 @@ public class Server implements ServerControl {
     /**
      * This method fills the looks up the clients in the registry
      * and adds them to the list of client controls
-     *
-     * @param registry containing the binded clients
      */
-    public void fillClientList(final Registry registry) {
+    public void fillClientList() {
         for (int i = 0; i < counter; i++) {
             try {
                 clients.add((ClientControl) registry.lookup("Client" + (i + 1)));
@@ -92,7 +90,7 @@ public class Server implements ServerControl {
      * This method initializes every client in the list.
      * Calculates the distribution rate of seats and philosophers between the amount of clients.
      */
-    public void initClients(final Registry registry) {
+    public void initClients() {
         int deltaSeats = totalSeats;
         int deltaPhilosophers = totalPhilosophers;
         int numberOfSeats = totalSeats / counter;
@@ -170,7 +168,7 @@ public class Server implements ServerControl {
     }
 
 
-    private void initNewTable(final Registry registry) {
+    private void initNewTable() {
         int deltaSeats = totalSeats;
         int numberOfSeats = totalSeats / counter;
 
@@ -187,7 +185,7 @@ public class Server implements ServerControl {
     }
 
 
-    public void increaseTableSize(final int newSeatAmount, final Registry registry) {
+    public void increaseTableSize(final int newSeatAmount) {
         try {
 
             for (final ClientControl client : clients) {
@@ -200,14 +198,15 @@ public class Server implements ServerControl {
 
             }
             setTotalSeats(newSeatAmount);
-            initNewTable(registry);
+            initNewTable();
             for (final ClientControl clientControl : clients) {
                 clientControl.restartClients();
-                LOGGER.info("Restart clients");
+                LOGGER.info("Restart client [" + clientControl.getId() + "]");
             }
         } catch (RemoteException | NotBoundException | InterruptedException e) {
             e.printStackTrace();
         }
+        LOGGER.info("Table size change to " + newSeatAmount + " seats");
     }
 
 
@@ -228,7 +227,7 @@ public class Server implements ServerControl {
                 totalNew -= philsPerClient;
                 philsPerClient = totalNew - philsPerClient < 0 || i == counter - 2 ? totalNew : philsPerClient;
                 setTotalPhilosophers(totalPhilosophers + philsPerClient);
-
+                LOGGER.info("Added philosopher to client [" + clients.get(i).getId() + "]");
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -245,7 +244,7 @@ public class Server implements ServerControl {
                 totalNew -= philsPerClient;
                 philsPerClient = totalNew - philsPerClient < 0 || i == counter - 2 ? totalNew : philsPerClient;
                 setTotalPhilosophers(totalPhilosophers - philsPerClient);
-
+                LOGGER.info("Remove a philosopher from Client[" + clients.get(i).getId() + "]");
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
