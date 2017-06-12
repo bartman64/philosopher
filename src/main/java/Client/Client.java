@@ -33,10 +33,6 @@ public class Client implements ClientControl {
      */
     private int numberOfPhilosophers;
 
-    public int getNumberOfSeats() {
-        return numberOfSeats;
-    }
-
     /**
      * Int value for the amount of seats in the dining hall.
      */
@@ -46,7 +42,6 @@ public class Client implements ClientControl {
      * List of threads containing the runnable philosophers.
      */
     private final List<Thread> threads;
-
 
     /**
      * Dininghall containing the seats and the forks.

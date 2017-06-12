@@ -7,7 +7,6 @@ import MeditationHall.Philosopher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
@@ -87,8 +86,8 @@ public class Dininghall {
             try {
                 ChairRemote chair = (ChairRemote) UnicastRemoteObject.exportObject(chairs.get(i - startValue), 0);
                 ForkRemote fork = (ForkRemote) UnicastRemoteObject.exportObject(forks.get(i - startValue), 0);
-                client.proxyBind("Chair"+i, chair);
-                client.proxyBind("Fork"+i, fork);
+                client.proxyBind("Chair" + i, chair);
+                client.proxyBind("Fork" + i, fork);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }

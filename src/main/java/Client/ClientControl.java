@@ -45,5 +45,5 @@ public interface ClientControl extends Remote {
 
     void stopPhils(final int amount) throws RemoteException;
 
-    public void stopClient() throws RemoteException;
+    void stopClient() throws RemoteException;
 }
