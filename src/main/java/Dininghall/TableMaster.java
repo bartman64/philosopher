@@ -11,7 +11,7 @@ import java.util.*;
 public class TableMaster extends Thread implements Observer {
 
     /**
-     * Logger for logging
+     * Logger for logging.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(TableMaster.class);
 
@@ -19,7 +19,6 @@ public class TableMaster extends Thread implements Observer {
      * Map of Philosophers and their consumption
      */
     private final Map<Philosopher, Integer> phil2EatCount;
-
 
     /**
      * Client on which the Tablemaster runs

@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 
 public class Chair implements ChairRemote {
 
+    /**
+     * Logger for logging.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(Chair.class);
 
     /**

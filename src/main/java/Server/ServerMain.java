@@ -30,7 +30,7 @@ public class ServerMain {
             server.fillClientList();
             server.initClients();
             server.startClients();
-            Thread.sleep(5000);
+            Thread.sleep(60000);
             server.increaseTableSize(20);
 
             Thread.sleep(5000);

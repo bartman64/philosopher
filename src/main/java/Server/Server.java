@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 
 public class Server implements ServerControl {
 
+    /**
+     * Logger for logging.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
     /**
@@ -186,7 +189,7 @@ public class Server implements ServerControl {
             for (final ClientControl client : clients) {
                 client.clearDininghall();
             }
-            Thread.sleep(1000);
+            Thread.sleep(500);
             for (int i = 0; i < totalSeats; i++) {
                 registry.unbind("Chair" + i);
                 registry.unbind("Fork" + i);

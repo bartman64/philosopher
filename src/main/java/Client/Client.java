@@ -20,6 +20,9 @@ import java.util.List;
 
 public class Client implements ClientControl {
 
+    /**
+     * Logger for logging.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
 
     /**
@@ -203,7 +206,7 @@ public class Client implements ClientControl {
                 LOGGER.info("[" + philosopher.getId() + "] ate " + philosopher.getTotalEatCounter() + " times.");
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

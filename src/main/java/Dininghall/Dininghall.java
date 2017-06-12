@@ -18,6 +18,9 @@ import java.util.List;
 
 public class Dininghall {
 
+    /**
+     * Logger for logging.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(Dininghall.class);
 
     /**
