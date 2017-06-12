@@ -91,8 +91,14 @@ public class Dininghall {
                 e.printStackTrace();
             }
         }
-        if (numberOfPlaces == 1) {
-            forks.add(new Fork(numberOfPlaces));
+        if (client.getTotalSeats() == 1 && numberOfPlaces == 1) {
+            forks.add(new Fork(1));
+            try {
+                ForkRemote fork = (ForkRemote) UnicastRemoteObject.exportObject(forks.get(1), 0);
+                client.proxyBind("Fork" + 1, fork);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -170,7 +176,7 @@ public class Dininghall {
         ForkRemote rightFork;
         String forkName;
         LOGGER.info("Chair: " + chair.getId() + "check if last chair");
-        if (client.getTotalSeats() - 1 == chair.getId()) {
+        if (client.getTotalSeats() - 1 == chair.getId() && client.getTotalSeats() > 1) {
             forkName = "Fork0";
         } else {
             forkName = "Fork" + (chair.getId() + 1);
@@ -202,9 +208,14 @@ public class Dininghall {
      * @return chair if not taken and has left fork, null otherwise
      */
     public Chair getChair(final int philId) {
-        final int size = chairs.size() - 1;
+        int size = chairs.size() - 1;
         int start = (int) (size * Math.random());
-        for (; start < size; start++) {
+        if(chairs.size() == 1){
+            size = 1;
+            start = 0;
+        }
+        int j = start;
+        for (; j < size; j++) {
             Chair chair = chairs.get(start);
             if (chair.aquireChair()) {
                 LOGGER.info("Philosopher [" + philId + "]took chair:" + chair.getId());
@@ -212,7 +223,7 @@ public class Dininghall {
             }
         }
         for (int i = 0; i < start; i++) {
-            Chair chair = chairs.get(start);
+            Chair chair = chairs.get(i);
             if (chair.aquireChair()) {
                 LOGGER.info("Philosopher [" + philId + "]took chair:" + chair.getId());
                 return chair;

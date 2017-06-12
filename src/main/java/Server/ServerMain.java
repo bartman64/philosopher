@@ -19,8 +19,8 @@ import java.util.Arrays;
 public class ServerMain {
     public static void main(String[] args) {
         try {
-            final int totalSeats = 10;
-            final int totalPhilosophers = 10;
+            final int totalSeats = 1;
+            final int totalPhilosophers = 2;
             final Registry registry = LocateRegistry.createRegistry(1099);
             Server server = new Server(totalSeats, totalPhilosophers, registry);
             ServerControl serverStub = (ServerControl) UnicastRemoteObject.exportObject(server, 0);
@@ -30,15 +30,15 @@ public class ServerMain {
             server.fillClientList();
             server.initClients();
             server.startClients();
-            Thread.sleep(60000);
-            server.increaseTableSize(20);
+            Thread.sleep(10000);
+            /**server.increaseTableSize(20);
 
             Thread.sleep(5000);
             server.addPhils(2);
 
             Thread.sleep(5000);
             server.removePhils(2);
-            Thread.sleep(5000);
+            Thread.sleep(5000);*/
             server.stopClients();
 
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {
