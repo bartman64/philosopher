@@ -24,17 +24,12 @@ public class Fork implements ForkRemote {
         this.id = id;
     }
 
-    /**
-     * Returns the fork id
-     */
+    @Override
     public int getId() {
         return id;
     }
 
-    /**
-     * Changes the taken state of a fork
-     * @param taken Taken state of the fork
-     */
+    @Override
     public synchronized void setTaken(boolean taken) {
         if (!taken) {
             this.notifyAll();
@@ -42,20 +37,12 @@ public class Fork implements ForkRemote {
         this.taken = taken;
     }
 
-    /**
-     * Remote Method which returns the taken state of the fork
-     * @return Returns taken
-     * @throws RemoteException
-     */
     @Override
-    public boolean isTaken() throws RemoteException {
+    public boolean isTaken(){
         return taken;
     }
 
-    /**
-     * Sets the taken State of the fork to true if it is not used
-     * @return
-     */
+    @Override
     public synchronized boolean aquireFork() {
         boolean result = false;
         if (!this.taken) {
