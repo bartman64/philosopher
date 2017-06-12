@@ -12,16 +12,16 @@ public class ClientMain {
     public static void main(String[] args) {
         String host = (args.length < 1) ? null : args[0];
         try {
-            Registry registry = LocateRegistry.getRegistry(host);
+            Registry registry = LocateRegistry.getRegistry("10.28.4.7", 1099);
             ServerControl server = (ServerControl) registry.lookup("Server");
             final Client client = new Client();
             ClientControl clientSkelet = (ClientControl) UnicastRemoteObject.exportObject(client, 0);
             final int clientId = server.getId();
-            registry.bind("Client" + clientId, clientSkelet);
             client.setId(clientId);
             client.setServer(server);
+            client.proxyBind("Client" + clientId, clientSkelet);
 
-        } catch (RemoteException | NotBoundException | AlreadyBoundException e) {
+        } catch (RemoteException | NotBoundException  e) {
             e.printStackTrace();
         }
 
