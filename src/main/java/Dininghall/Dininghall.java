@@ -148,7 +148,7 @@ public class Dininghall {
         try {
             //If the current chair is a remote chair from another table part search for the matching remote fork.
             //And Check if the current chair is the last in the list
-            if (isRemoteChair(chair) || chair.equals(chairs.get(chairs.size() - 1))) {
+            if (isRemoteChair(chair) || (chair.getId() - startValue) == (chairs.size() - 1)) {
                 rightFork = getRemoteFork(chair);
             } else {
                 rightFork = forks.get(chair.getId() + 1 - startValue);

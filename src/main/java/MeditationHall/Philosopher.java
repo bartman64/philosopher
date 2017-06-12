@@ -130,7 +130,7 @@ public class Philosopher extends Observable implements Runnable {
                 eatCounter = 0;
             }
         }
-        LOGGER.info("Got DELETED!!!!!");
+        LOGGER.info("Philosopher [" + id + "]Got DELETED!!!!!");
     }
 
     /**
@@ -170,17 +170,19 @@ public class Philosopher extends Observable implements Runnable {
                 ForkRemote leftFork = dininghall.getLeftFork(chair, id);
                 if (leftFork == null) {
                     leftFork = dininghall.aquireWaitFork(chair);
-                    synchronized (leftFork) {
-                        LOGGER.info("\t\tPhilosopher [" + id + "] is waiting for LeftFork[" +  leftFork.getId() +"]");
-                        while (leftFork.isTaken()) {
-                            leftFork.wait();
+                    if(leftFork != null) {
+                        synchronized (leftFork) {
+                            LOGGER.info("\t\tPhilosopher [" + id + "] is waiting for LeftFork[" + leftFork.getId() + "]");
+                            while (leftFork.isTaken()) {
+                                leftFork.wait();
+                            }
+                            leftFork = dininghall.getLeftFork(chair, id);
                         }
-                        leftFork = dininghall.getLeftFork(chair, id);
                     }
                 }
 
-                ForkRemote rightFork = dininghall.getRightFork(chair, id);
                 if (leftFork != null) {
+                    ForkRemote rightFork = dininghall.getRightFork(chair, id);
                     if (rightFork == null) {
                         Thread.sleep(0, 500);
                         rightFork = dininghall.getRightFork(chair, id);
@@ -194,7 +196,6 @@ public class Philosopher extends Observable implements Runnable {
                         rightFork.setTaken(false);
                         LOGGER.info("\t\tPhilosopher [" + id + "] released left fork: " + leftFork.getId());
                         LOGGER.info("\tPhilosopher [" + id + "] released right fork: " + rightFork.getId());
-
                         chair.setTaken(false);
                         notifyOb();
                         LOGGER.info("Philosopher [" + id + "] leaves table");

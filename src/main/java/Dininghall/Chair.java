@@ -90,7 +90,7 @@ public class Chair implements ChairRemote {
      */
     public synchronized boolean aquireQueuedChair(final Philosopher philosopher) {
         boolean aquired = false;
-        if (this.taken && this.queuedPhil == null) {
+        if (this.queuedPhil == null && this.taken) {
             aquired = true;
             this.queuedPhil = philosopher;
             queuedPhil.setWaiting(true);
