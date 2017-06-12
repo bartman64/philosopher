@@ -125,7 +125,7 @@ public class Philosopher extends Observable implements Runnable {
             meditate();
             eat();
             if (eatCounter == MAX_EAT_COUNTER) {
-                LOGGER.info("\t\t\t\t\tPhilospher [" + id + "]  is sleeping");
+                LOGGER.info("\t\t\t\t\tPhilosopher [" + id + "]  is sleeping");
                 sleep();
                 eatCounter = 0;
             }
@@ -171,7 +171,7 @@ public class Philosopher extends Observable implements Runnable {
                 if (leftFork == null) {
                     leftFork = dininghall.aquireWaitFork(chair);
                     synchronized (leftFork) {
-                        LOGGER.info("\t\tPhilosopher [%d] is waiting for LeftFork[%d]", id, leftFork.getId());
+                        LOGGER.info("\t\tPhilosopher [" + id + "] is waiting for LeftFork[" +  leftFork.getId() +"]");
                         while (leftFork.isTaken()) {
                             leftFork.wait();
                         }
@@ -186,27 +186,27 @@ public class Philosopher extends Observable implements Runnable {
                         rightFork = dininghall.getRightFork(chair, id);
                     }
                     if (rightFork != null) {
-                        LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating");
+                        LOGGER.info("\t\t\tPhilosopher [" + id + "]  is eating");
                         Thread.sleep(EAT_TIME_MS);
                         eatCounter++;
                         totalEatCounter++;
                         leftFork.setTaken(false);
                         rightFork.setTaken(false);
-                        LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
-                        LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
+                        LOGGER.info("\t\tPhilosopher [" + id + "] released left fork: " + leftFork.getId());
+                        LOGGER.info("\tPhilosopher [" + id + "] released right fork: " + rightFork.getId());
 
                         chair.setTaken(false);
                         notifyOb();
-                        LOGGER.info("Philospher [" + id + "] leaves table");
+                        LOGGER.info("Philosopher [" + id + "] leaves table");
                     } else {
                         leftFork.setTaken(false);
-                        LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
+                        LOGGER.info("\t\tPhilosopher [" + id + "] released left fork: " + leftFork.getId());
                         chair.setTaken(false);
-                        LOGGER.info("Philospher [" + id + "] leaves table\n", id);
+                        LOGGER.info("Philosopher [" + id + "] leaves table\n", id);
                     }
                 } else {
                     chair.setTaken(false);
-                    LOGGER.info("Philospher [" + id + "] leaves table\n", id);
+                    LOGGER.info("Philosopher [" + id + "] leaves table\n", id);
                 }
             }
         } catch (InterruptedException |
@@ -352,7 +352,7 @@ public class Philosopher extends Observable implements Runnable {
         this.running = false;
     }
 
-    public void setWaiting(boolean waiting) {
+    public synchronized void setWaiting(boolean waiting) {
         isWaiting = waiting;
     }
 }

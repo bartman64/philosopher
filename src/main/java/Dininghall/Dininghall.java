@@ -123,7 +123,7 @@ public class Dininghall {
             if (leftFork != null && !leftFork.aquireFork()) {
                 return null;
             } else if (leftFork != null) {
-                LOGGER.info("\tPhilospher [" + philId + "] took left fork: " + leftFork.getId());
+                LOGGER.info("\tPhilosopher [" + philId + "] took left fork: " + leftFork.getId());
                 return leftFork;
             }
         } catch (RemoteException e) {
@@ -156,7 +156,7 @@ public class Dininghall {
             if (!rightFork.aquireFork()) {
                 return null;
             } else {
-                LOGGER.info("\t\tPhilospher [" + philId + "] took right fork: " + rightFork.getId());
+                LOGGER.info("\t\tPhilosopher [" + philId + "] took right fork: " + rightFork.getId());
                 return rightFork;
             }
         } catch (RemoteException | NotBoundException e) {
@@ -207,14 +207,14 @@ public class Dininghall {
         for (; start < size; start++) {
             Chair chair = chairs.get(start);
             if (chair.aquireChair()) {
-                LOGGER.info("Philospher [" + philId + "]took chair:" + chair.getId());
+                LOGGER.info("Philosopher [" + philId + "]took chair:" + chair.getId());
                 return chair;
             }
         }
         for (int i = 0; i < start; i++) {
             Chair chair = chairs.get(start);
             if (chair.aquireChair()) {
-                LOGGER.info("Philospher [" + philId + "]took chair:" + chair.getId());
+                LOGGER.info("Philosopher [" + philId + "]took chair:" + chair.getId());
                 return chair;
             }
         }
@@ -271,7 +271,7 @@ public class Dininghall {
     public void resetLists() {
         forks.clear();
         chairs.clear();
-        LOGGER.info("Listed cleared");
+        LOGGER.info("Lists cleared");
     }
 
     public void setNumberOfPlaces(int numberOfPlaces) {

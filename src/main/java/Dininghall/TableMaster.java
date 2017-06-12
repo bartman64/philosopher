@@ -69,7 +69,7 @@ public class TableMaster extends Thread implements Observer {
                 LOGGER.info("ConsumptionDiff: " + consumptionDiff);
                 LOGGER.info("Philosopher[" + entries.getKey().getId() + "] has eaten " + currConsumption + " times in a row!");
                 if (consumptionDiff >= 5) {
-                    LOGGER.info("[*] Philosopher[" + entries.getKey().getId() + "] is forced to sleep! [*]");
+                    LOGGER.info("[*] Philosopher [" + entries.getKey().getId() + "] is forced to sleep! [*]");
                     entries.getKey().forceSleep();
                 }
             }
