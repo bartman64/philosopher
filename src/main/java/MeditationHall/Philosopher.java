@@ -150,24 +150,54 @@ public class Philosopher extends Observable implements Runnable {
         try {
             ChairRemote chair = dininghall.getChair(id);
             if (chair == null) {
-                chair = tryGettingIntoQueue();
+                if ((chair = dininghall.getQueueChair(this)) != null) {
+                    synchronized (chair) {
+                        LOGGER.info("Philosopher [" + id + "] waiting for notification");
+                        while (isWaiting) {
+                            chair.wait();
+                        }
+                    }
+                    chair = dininghall.getChair(id);
+                }
                 if (chair == null) {
-                    chair = tryGettingRemoteChair();
+                    chair = dininghall.clientSearch(id);
+                    if (chair != null) {
+                        LOGGER.info("Remote Chair[" + chair.getId() + "] aquired from " + id);
+                    }
                 }
             }
             if (chair != null) {
                 ForkRemote leftFork = dininghall.getLeftFork(chair, id);
                 if (leftFork == null) {
-                    leftFork = waitForLeftFork(chair);
+                    leftFork = dininghall.aquireWaitFork(chair);
+                    synchronized (leftFork) {
+                        LOGGER.info("\t\tPhilosopher [%d] is waiting for LeftFork[%d]", id, leftFork.getId());
+                        while (leftFork.isTaken()) {
+                            leftFork.wait();
+                        }
+                        leftFork = dininghall.getLeftFork(chair, id);
+                    }
                 }
+
+                ForkRemote rightFork = dininghall.getRightFork(chair, id);
                 if (leftFork != null) {
-                    ForkRemote rightFork = dininghall.getRightFork(chair, id);
                     if (rightFork == null) {
                         Thread.sleep(0, 500);
                         rightFork = dininghall.getRightFork(chair, id);
                     }
                     if (rightFork != null) {
-                        eatAndReleaseProcess(chair, leftFork, rightFork);
+                        LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating");
+                        Thread.sleep(EAT_TIME_MS);
+                        eatCounter++;
+                        totalEatCounter++;
+                        leftFork.setTaken(false);
+                        rightFork.setTaken(false);
+                        LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
+                        LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
+
+                        chair.setTaken(false);
+                        notifyOb();
+                        LOGGER.info("Philospher [" + id + "] leaves table");
                     } else {
                         leftFork.setTaken(false);
                         LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
@@ -179,7 +209,10 @@ public class Philosopher extends Observable implements Runnable {
                     LOGGER.info("Philospher [" + id + "] leaves table\n", id);
                 }
             }
-        } catch (InterruptedException | RemoteException e) {
+        } catch (InterruptedException |
+                RemoteException e)
+
+        {
             e.printStackTrace();
         }
 
@@ -196,7 +229,7 @@ public class Philosopher extends Observable implements Runnable {
      * @throws InterruptedException When an interruption occurs
      * @throws RemoteException      connection lost
      */
-    private void eatAndReleaseProcess(ChairRemote chair, ForkRemote leftFork, ForkRemote rightFork) throws InterruptedException, RemoteException {
+  /*  private void eatAndReleaseProcess(ChairRemote chair, ForkRemote leftFork, ForkRemote rightFork) throws InterruptedException, RemoteException {
         LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating");
         Thread.sleep(EAT_TIME_MS);
 
@@ -213,7 +246,7 @@ public class Philosopher extends Observable implements Runnable {
         LOGGER.info("Philospher [" + id + "] leaves table");
 
         notifyOb();
-    }
+    }*/
 
     /**
      * This method waits for the left fork to be released.
@@ -223,7 +256,7 @@ public class Philosopher extends Observable implements Runnable {
      * @throws RemoteException      Connection lost
      * @throws InterruptedException when an interruption occurs
      */
-    private ForkRemote waitForLeftFork(ChairRemote chair) throws RemoteException, InterruptedException {
+   /* private ForkRemote waitForLeftFork(ChairRemote chair) throws RemoteException, InterruptedException {
         ForkRemote leftFork;
         leftFork = dininghall.aquireWaitFork(chair);
         synchronized (leftFork) {
@@ -234,7 +267,7 @@ public class Philosopher extends Observable implements Runnable {
             leftFork = dininghall.getLeftFork(chair, id);
         }
         return leftFork;
-    }
+    }*/
 
     /**
      * This method tries to get a remote chair.
@@ -243,14 +276,14 @@ public class Philosopher extends Observable implements Runnable {
      * @return Chair if an empty seat was found, null otherwise
      * @throws RemoteException Connection lost
      */
-    private ChairRemote tryGettingRemoteChair() throws RemoteException {
+  /*  private ChairRemote tryGettingRemoteChair() throws RemoteException {
         ChairRemote chair;
         chair = dininghall.clientSearch(id);
         if (chair != null) {
             LOGGER.info("Remote Chair[" + chair.getId() + "] aquired from " + id);
         }
         return chair;
-    }
+    }*/
 
     /**
      * This method tries to find an empty queue for a chair.
@@ -259,7 +292,7 @@ public class Philosopher extends Observable implements Runnable {
      * @return Chair on where the philosopher seats, null otherwise
      * @throws InterruptedException if an interruption occurs
      */
-    private ChairRemote tryGettingIntoQueue() throws InterruptedException {
+  /*  private ChairRemote tryGettingIntoQueue() throws InterruptedException {
         ChairRemote chair;
         if ((chair = dininghall.getQueueChair(this)) != null) {
             synchronized (chair) {
@@ -271,7 +304,7 @@ public class Philosopher extends Observable implements Runnable {
             chair = dininghall.getChair(id);
         }
         return chair;
-    }
+    }*/
 
     /**
      * This method sets the thread to sleep to simulate the meditation.
