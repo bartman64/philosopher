@@ -249,12 +249,12 @@ public class Dininghall {
      * @return fork on which the philosopher waits
      */
     public ForkRemote aquireWaitFork(final ChairRemote chair) {
-        ForkRemote waitFork;
+        ForkRemote waitFork = null;
         int chairId = 0;
         try {
             chairId = chair.getId();
             if (isRemoteChair(chair)) {
-                waitFork = (ForkRemote) registry.lookup("Fork" + chairId);
+                //waitFork = (ForkRemote) registry.lookup("Fork" + chairId);
             } else {
                 waitFork = forks.get(chairId - startValue);
             }
