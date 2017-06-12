@@ -61,6 +61,7 @@ public class Client implements ClientControl {
      */
     private TableMaster tableMaster;
 
+
     public Client() {
         this.numberOfPhilosophers = 0;
         this.threads = new ArrayList<>();

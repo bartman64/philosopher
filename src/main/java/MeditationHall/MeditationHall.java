@@ -60,10 +60,18 @@ public class MeditationHall {
         return philosophers;
     }
 
+    /**
+     * Adds a philosopher to the list of the meditation hall
+     * @param philosopher Philosopher that is to be added to the meditation hall
+     */
     public void addPhil(final Philosopher philosopher) {
         philosophers.add(philosopher);
     }
 
+    /**
+     * Removes a philosopher from the list of the meditation hall
+     * @param philosopher Philosopher that is to be removed from the meditation hall
+     */
     public void removePhil(final Philosopher philosopher) {
         philosophers.remove(philosopher);
     }

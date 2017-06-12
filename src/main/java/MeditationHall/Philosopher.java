@@ -55,10 +55,19 @@ public class Philosopher extends Observable implements Runnable {
      */
     final private Dininghall dininghall;
 
+    /**
+     * Boolean indicating that a philosopher is eating/sleeping/meditating
+     */
     private boolean threadState;
 
+    /**
+     * Boolean indicating if a philosopher has enqueued himself for a chair.
+     */
     private boolean isWaiting = false;
 
+    /**
+     * Boolean which indicates a Philosophers vital state
+     */
     private boolean running = true;
 
 
