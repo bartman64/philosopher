@@ -13,7 +13,7 @@ public class ClientMain {
     public static void main(String[] args) {
         String host = (args.length < 1) ? null : args[0];
         try {
-            Registry registry = LocateRegistry.getRegistry(host);
+            Registry registry = LocateRegistry.getRegistry("10.28.3.5", 1099);
             ServerControl server = (ServerControl) registry.lookup("Server");
             final Client client = new Client();
             ClientControl clientSkelet = (ClientControl) UnicastRemoteObject.exportObject(client, 0);

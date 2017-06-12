@@ -13,8 +13,8 @@ import java.util.Arrays;
  * TODO: Paralleles stoppen bei Hinzufügen von Stühlen [DONE]
  * TODO: Dokumentation Projekt
  * TODO: Testen Esszugriffe - Locks [DONE]
- * TODO: Proxy Methode für Server - Registry schreiben
- * TODO: Verteilt Testen
+ * TODO: Proxy Methode für Server - Registry schreiben [DONE]
+ * TODO: Verteilt Testen [DONE]
  */
 public class ServerMain {
     public static void main(String[] args) {
@@ -30,15 +30,15 @@ public class ServerMain {
             server.fillClientList(registry);
             server.initClients(registry);
             server.startClients();
-            Thread.sleep(5000);
-            server.increaseTableSize(20, registry);
-
-            Thread.sleep(5000);
-            server.addPhils(2);
-
-            Thread.sleep(5000);
-            server.removePhils(2);
-            Thread.sleep(1000);
+            Thread.sleep(60000);
+//            server.increaseTableSize(20, registry);
+//
+//            Thread.sleep(5000);
+//            server.addPhils(2);
+//
+//            Thread.sleep(5000);
+//            server.removePhils(2);
+//            Thread.sleep(1000);
             server.stopClients();
 
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {
