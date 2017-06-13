@@ -1,5 +1,6 @@
 package Dininghall;
 
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -27,4 +28,8 @@ public interface ForkRemote extends Remote {
      * @return Returns wether or not the fork got aquired
      */
     boolean aquireFork() throws RemoteException;
+
+    void waitOnObject() throws RemoteException;
+
+
 }

@@ -6,6 +6,7 @@ import Dininghall.ChairRemote;
 import Dininghall.TableMaster;
 import Dininghall.Chair;
 import Dininghall.Fork;
+import Dininghall.ForkRemote;
 import MeditationHall.MeditationHall;
 import MeditationHall.Philosopher;
 import Server.ServerControl;
@@ -203,6 +204,7 @@ public class Client implements ClientControl {
         final Thread thread = new Thread(new Client.PhilosophStopper());
         thread.start();
     }
+
 
     public class PhilosophStopper implements Runnable {
 

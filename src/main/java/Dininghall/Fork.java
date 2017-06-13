@@ -1,9 +1,14 @@
 package Dininghall;
 
+import MeditationHall.Philosopher;
+import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
+import java.util.logging.Logger;
 
 public class Fork implements ForkRemote {
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Philosopher.class);
 
     /**
      * Boolean indicating if a fork is in use
@@ -14,6 +19,8 @@ public class Fork implements ForkRemote {
      * Id of the fork
      */
     private int id;
+
+    private boolean remoteWaitingPhil = false;
 
     /**
      * Ctor of a Fork
@@ -33,6 +40,7 @@ public class Fork implements ForkRemote {
     public synchronized void setTaken(boolean taken) {
         if (!taken) {
             this.notifyAll();
+            LOGGER.info("Fork [" + id + "] Notified waiting Philosophers");
         }
         this.taken = taken;
     }
@@ -51,4 +59,14 @@ public class Fork implements ForkRemote {
         }
         return result;
     }
+
+    @Override
+    public synchronized void waitOnObject() throws RemoteException {
+        try {
+            this.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

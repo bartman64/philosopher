@@ -174,7 +174,7 @@ public class Philosopher extends Observable implements Runnable {
                         synchronized (leftFork) {
                             LOGGER.info("\t\tPhilosopher [" + id + "] is waiting for LeftFork[" + leftFork.getId() + "]");
                             while (leftFork.isTaken()) {
-                                leftFork.wait();
+                                leftFork.waitOnObject();
                             }
                             leftFork = dininghall.getLeftFork(chair, id);
                         }
@@ -193,8 +193,8 @@ public class Philosopher extends Observable implements Runnable {
                         eatCounter++;
                         totalEatCounter++;
                         leftFork.setTaken(false);
-                        rightFork.setTaken(false);
                         LOGGER.info("\t\tPhilosopher [" + id + "] released left fork: " + leftFork.getId());
+                        rightFork.setTaken(false);
                         LOGGER.info("\tPhilosopher [" + id + "] released right fork: " + rightFork.getId());
                         chair.setTaken(false);
                         notifyOb();
@@ -218,94 +218,6 @@ public class Philosopher extends Observable implements Runnable {
         }
 
     }
-
-    /**
-     * This method simulates the process of eating.
-     * The philosopher thread sleeps for the amount of time it takes to eat.
-     * When the eat process is done the forks and chair gets release.
-     *
-     * @param chair     Chair where the philosopher is sitting on and has to releas when finish
-     * @param leftFork  Fork needs to be release when finish
-     * @param rightFork Fork needs to be release when finish
-     * @throws InterruptedException When an interruption occurs
-     * @throws RemoteException      connection lost
-     */
-  /*  private void eatAndReleaseProcess(ChairRemote chair, ForkRemote leftFork, ForkRemote rightFork) throws InterruptedException, RemoteException {
-        LOGGER.info("\t\t\tPhilospher [" + id + "]  is eating");
-        Thread.sleep(EAT_TIME_MS);
-
-        eatCounter++;
-        totalEatCounter++;
-
-        leftFork.setTaken(false);
-        LOGGER.info("\t\tPhilospher [" + id + "] released left fork: " + leftFork.getId());
-
-        rightFork.setTaken(false);
-        LOGGER.info("\tPhilospher [" + id + "] released right fork: " + rightFork.getId());
-
-        chair.setTaken(false);
-        LOGGER.info("Philospher [" + id + "] leaves table");
-
-        notifyOb();
-    }*/
-
-    /**
-     * This method waits for the left fork to be released.
-     *
-     * @param chair Chair needed to acquire the left fork
-     * @return the left fork of the given chair
-     * @throws RemoteException      Connection lost
-     * @throws InterruptedException when an interruption occurs
-     */
-   /* private ForkRemote waitForLeftFork(ChairRemote chair) throws RemoteException, InterruptedException {
-        ForkRemote leftFork;
-        leftFork = dininghall.aquireWaitFork(chair);
-        synchronized (leftFork) {
-            LOGGER.info("\t\tPhilosopher [" + id + "] is waiting for LeftFork[" + leftFork.getId() + "]");
-            while (leftFork.isTaken()) {
-                leftFork.wait();
-            }
-            leftFork = dininghall.getLeftFork(chair, id);
-        }
-        return leftFork;
-    }*/
-
-    /**
-     * This method tries to get a remote chair.
-     * It asks the server to find an empty chair
-     *
-     * @return Chair if an empty seat was found, null otherwise
-     * @throws RemoteException Connection lost
-     */
-  /*  private ChairRemote tryGettingRemoteChair() throws RemoteException {
-        ChairRemote chair;
-        chair = dininghall.clientSearch(id);
-        if (chair != null) {
-            LOGGER.info("Remote Chair[" + chair.getId() + "] aquired from " + id);
-        }
-        return chair;
-    }*/
-
-    /**
-     * This method tries to find an empty queue for a chair.
-     * The philosopher waits until someone leaves the table and then tries to get a chair.
-     *
-     * @return Chair on where the philosopher seats, null otherwise
-     * @throws InterruptedException if an interruption occurs
-     */
-  /*  private ChairRemote tryGettingIntoQueue() throws InterruptedException {
-        ChairRemote chair;
-        if ((chair = dininghall.getQueueChair(this)) != null) {
-            synchronized (chair) {
-                LOGGER.info("Philosopher [" + id + "] waiting for notification");
-                while (isWaiting) {
-                    chair.wait();
-                }
-            }
-            chair = dininghall.getChair(id);
-        }
-        return chair;
-    }*/
 
     /**
      * This method sets the thread to sleep to simulate the meditation.

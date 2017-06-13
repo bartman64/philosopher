@@ -23,7 +23,7 @@ public class ServerMain {
     public static void main(String[] args) {
         try {
             final int totalSeats = 10;
-            final int totalPhilosophers = 10;
+            final int totalPhilosophers = 50;
             final Registry registry = LocateRegistry.createRegistry(1099);
             Server server = new Server(totalSeats, totalPhilosophers, registry);
             ServerControl serverStub = (ServerControl) UnicastRemoteObject.exportObject(server, 0);
@@ -33,7 +33,7 @@ public class ServerMain {
             server.fillClientList();
             server.initClients();
             server.startClients();
-            Thread.sleep(10000);
+            Thread.sleep(60000);
             server.increaseTableSize(20);
 
             Thread.sleep(5000);
