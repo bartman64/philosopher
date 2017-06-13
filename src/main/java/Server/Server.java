@@ -233,6 +233,33 @@ public class Server implements ServerControl {
 
     }
 
+    public void removeChairs(final int amount){
+        try {
+            int newAmount = totalSeats - amount;
+            if(newAmount < 0){
+                newAmount = 0;
+            }
+            for (final ClientControl client : clients) {
+                client.clearDininghall();
+            }
+            Thread.sleep(500);
+            for (int i = 0; i < totalSeats; i++) {
+                registry.unbind("Chair" + i);
+                registry.unbind("Fork" + i);
+
+            }
+            setTotalSeats(newAmount);
+            initNewTable();
+            for (final ClientControl clientControl : clients) {
+                clientControl.restartClients();
+                LOGGER.info("Restart client [" + clientControl.getId() + "]");
+            }
+        } catch (RemoteException | NotBoundException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        LOGGER.info("Chairs reduced by" + amount);
+    }
+
     public void stopClients() {
         for (final ClientControl client : clients) {
             try {

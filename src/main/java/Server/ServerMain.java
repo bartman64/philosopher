@@ -1,11 +1,13 @@
 package Server;
 
+import java.io.IOException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Arrays;
+import java.util.Scanner;
 
 
 /**
@@ -22,8 +24,9 @@ import java.util.Arrays;
 public class ServerMain {
     public static void main(String[] args) {
         try {
-            final int totalSeats = 10;
-            final int totalPhilosophers = 50;
+            boolean running = true;
+            final int totalSeats = 2;
+            final int totalPhilosophers = 2;
             final Registry registry = LocateRegistry.createRegistry(1099);
             Server server = new Server(totalSeats, totalPhilosophers, registry);
             ServerControl serverStub = (ServerControl) UnicastRemoteObject.exportObject(server, 0);
@@ -33,15 +36,41 @@ public class ServerMain {
             server.fillClientList();
             server.initClients();
             server.startClients();
-            Thread.sleep(60000);
-            server.increaseTableSize(20);
+            while (running){
+                Scanner scanner = new Scanner(System.in);
 
-            Thread.sleep(5000);
-            server.addPhils(2);
+                String cmd = scanner.nextLine();
 
-            Thread.sleep(5000);
-            server.removePhils(2);
-            Thread.sleep(5000);
+                String[] cmdSplit = cmd.split(" ");
+
+                switch (cmdSplit[0]){
+                    case "stop":
+                        running = false;
+                        break;
+                    case "add":
+                        if(cmdSplit.length == 3){
+                            if(cmdSplit[1].equals("seats")){
+                                server.increaseTableSize(Integer.parseInt(cmdSplit[2]));
+                            }
+                            if(cmdSplit[1].equals("phils")){
+                                server.addPhils(Integer.parseInt(cmdSplit[2]));
+                            }
+                        }
+                        break;
+                    case "rm":
+                        if(cmdSplit.length == 3){
+                            if(cmdSplit[1].equals("seats")){
+                                server.removeChairs(Integer.parseInt(cmdSplit[2]));
+                            }
+                            if(cmdSplit[1].equals("phils")){
+                                server.removePhils(Integer.parseInt(cmdSplit[2]));
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
             server.stopClients();
 
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {
