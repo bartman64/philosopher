@@ -58,6 +58,11 @@ public class Client implements ClientControl {
     private int totalSeats;
 
     /**
+     * List of clients.
+     */
+    private List<ClientControl> clients;
+
+    /**
      * Tablemaster over seeing the philosophers
      * and sends those who ate to much into a longer sleeping phase
      */
@@ -82,9 +87,11 @@ public class Client implements ClientControl {
     }
 
     @Override
-    public void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int prevSeats, final int prevPhils, final int totalSeats) throws RemoteException {
+    public void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int prevSeats, final int prevPhils, final int totalSeats, final List<ClientControl> clients) throws RemoteException {
         this.numberOfPhilosophers = numberOfPhilosophers;
         this.totalSeats = totalSeats;
+        this.clients = clients;
+        clients.remove(this);
 
         //Set up the dining hall
         dininghall = new Dininghall(numberOfSeats, this);
@@ -159,7 +166,7 @@ public class Client implements ClientControl {
      */
     public ChairRemote searchForEmptySeat(final int philospherId) {
         try {
-            return server.searchFreeChair(philospherId);
+            return searchFreeChair(philospherId);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -282,4 +289,28 @@ public class Client implements ClientControl {
         }
     }
 
+
+    public ChairRemote searchFreeChair(final int philosopherId) throws RemoteException {
+        for (final ClientControl client : clients) {
+            final ChairRemote chair = client.searchEmptyChair(philosopherId);
+            if (chair != null) {
+                return chair;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public int calcTotalAvg() {
+        int totalAvg = 0;
+        for (ClientControl client : clients) {
+            try {
+                totalAvg += client.avgCalc();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        totalAvg /= clients.size();
+        return totalAvg;
+    }
 }

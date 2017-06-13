@@ -8,6 +8,7 @@ import com.sun.org.apache.regexp.internal.RE;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.List;
 
 public interface ClientControl extends Remote {
 
@@ -20,7 +21,9 @@ public interface ClientControl extends Remote {
      * @param numberOfSeats        amount of philosopher in the client system.
      * @throws RemoteException if an remote error occurs
      */
-    void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int prevSeats, final int prevPhils, final int totalSeats) throws RemoteException;
+    void init(final int numberOfPhilosophers, final int numberOfSeats, final Registry registry, final int prevSeats, final int prevPhils, final int totalSeats, final List<ClientControl> clients
+              ) throws RemoteException;
+
 
     /**
      * This method start the runnable philosophers and the tablemaster thread.
@@ -51,6 +54,8 @@ public interface ClientControl extends Remote {
      * @throws RemoteException Connection lost
      */
     int avgCalc() throws RemoteException;
+
+    int calcTotalAvg() throws RemoteException;
 
     /**
      * This method calls the server to calculte the average consumption between all clients.

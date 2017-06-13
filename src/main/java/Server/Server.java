@@ -36,6 +36,9 @@ public class Server implements ServerControl {
      */
     private int totalPhilosophers;
 
+
+
+
     /**
      * List of clients.
      */
@@ -59,16 +62,7 @@ public class Server implements ServerControl {
         return ++counter;
     }
 
-    @Override
-    public ChairRemote searchFreeChair(final int philosopherId) throws RemoteException {
-        for (final ClientControl client : clients) {
-            final ChairRemote chair = client.searchEmptyChair(philosopherId);
-            if (chair != null) {
-                return chair;
-            }
-        }
-        return null;
-    }
+
 
     /**
      * This method fills the looks up the clients in the registry
@@ -97,7 +91,7 @@ public class Server implements ServerControl {
         int prevPhils = 0;
         for (int i = 0; i < clients.size(); i++) {
             try {
-                clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry, prevSeats, prevPhils, totalSeats);
+                clients.get(i).init(numberOfPhilosophers, numberOfSeats, registry, prevSeats, prevPhils, totalSeats, clients);
                 LOGGER.info("Client[" + i + "] with Seats: " + numberOfSeats + " and Phils: " + numberOfPhilosophers);
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -124,19 +118,7 @@ public class Server implements ServerControl {
         }
     }
 
-    @Override
-    public int calcTotalAvg() {
-        int totalAvg = 0;
-        for (ClientControl client : clients) {
-            try {
-                totalAvg += client.avgCalc();
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
-        totalAvg /= clients.size();
-        return totalAvg;
-    }
+
 
     /**
      * Bind a Remote obj to the Server that isn't running on the same System as the Server.
@@ -260,5 +242,8 @@ public class Server implements ServerControl {
             }
         }
         LOGGER.info("STOPPED");
+    }
+    public List<ClientControl> getClients() {
+        return clients;
     }
 }
