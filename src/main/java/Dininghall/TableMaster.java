@@ -90,4 +90,8 @@ public class TableMaster extends Thread implements Observer {
         }
         return avgConsumption;
     }
+
+    public void addPhilToTableMaster(final Philosopher philosopher){
+        phil2EatCount.put(philosopher, 0);
+    }
 }

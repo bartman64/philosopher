@@ -245,6 +245,7 @@ public class Client implements ClientControl {
         for (int i = totalPhils; i < totalPhils + amountOfNewPhils; i++) {
             final Philosopher philosopher = new Philosopher(dininghall, i, tableMaster);
             meditationHall.addPhil(philosopher);
+            tableMaster.addPhilToTableMaster(philosopher);
             final Thread thread = new Thread(philosopher);
             threads.add(thread);
             LOGGER.info("Philosopher[" + philosopher.getId() + "] started");
