@@ -56,15 +56,6 @@ public interface ClientControl extends Remote {
     int avgCalc() throws RemoteException;
 
     /**
-     * Returns the average consumption of the other clients
-     *
-     * @return the average consumption of the other clients
-     * @throws RemoteException Connection lost
-     */
-    int calcTotalAvg() throws RemoteException;
-
-
-    /**
      * This method initializes the table new for a client.
      *
      * @param numberOfSeats Number of seats each client will have
@@ -116,4 +107,12 @@ public interface ClientControl extends Remote {
      * @throws RemoteException Connection lost
      */
     void stopClient() throws RemoteException;
+
+    /**
+     * Returns the average consumption of the other clients
+     *
+     * @return the average consumption of the other clients
+     * @throws RemoteException Connection lost
+     */
+    int calcTotalAvg() throws RemoteException;
 }

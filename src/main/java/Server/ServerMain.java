@@ -1,13 +1,11 @@
 package Server;
 
-import java.io.IOException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Arrays;
-import java.util.Scanner;
 
 
 /**
@@ -25,8 +23,8 @@ public class ServerMain {
     public static void main(String[] args) {
         try {
             boolean running = true;
-            final int totalSeats = 2;
-            final int totalPhilosophers = 2;
+            final int totalSeats = 10;
+            final int totalPhilosophers = 50;
             final Registry registry = LocateRegistry.createRegistry(1099);
             Server server = new Server(totalSeats, totalPhilosophers, registry);
             ServerControl serverStub = (ServerControl) UnicastRemoteObject.exportObject(server, 0);
@@ -36,7 +34,7 @@ public class ServerMain {
             server.fillClientList();
             server.initClients();
             server.startClients();
-            while (running){
+            /*while (running){
                 Scanner scanner = new Scanner(System.in);
 
                 String cmd = scanner.nextLine();
@@ -70,7 +68,8 @@ public class ServerMain {
                     default:
                         break;
                 }
-            }
+            }*/
+            Thread.sleep(60000);
             server.stopClients();
 
         } catch (RemoteException | AlreadyBoundException | InterruptedException e) {
