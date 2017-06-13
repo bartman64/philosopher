@@ -154,36 +154,13 @@ public class Client implements ClientControl {
         return dininghall.getChair(philosophersId);
     }
 
-    public void setServer(ServerControl server) {
+    void setServer(ServerControl server) {
         this.server = server;
-    }
-
-    /**
-     * This method calls the server to search for free seats on the other clients.
-     *
-     * @return empty chair for the philosopher,
-     * if every chair is occupied null gets returned
-     */
-    public ChairRemote searchForEmptySeat(final int philospherId) {
-        try {
-            return searchFreeChair(philospherId);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     @Override
     public int avgCalc() {
         return tableMaster.calcAvgConsumption();
-    }
-
-    public int getTotalAvg() {
-        try {
-            return server.calcTotalAvg();
-        } catch (RemoteException e) {
-            throw new RuntimeException();
-        }
     }
 
     @Override
@@ -290,13 +267,34 @@ public class Client implements ClientControl {
     }
 
 
+    /**
+     * Search for an empty seat on other clients.
+     * Start with random client
+     * @param philosopherId id of the philosopher that tries to aquire a chair
+     * @return Returns a chair if available else null
+     * @throws RemoteException
+     */
     public ChairRemote searchFreeChair(final int philosopherId) throws RemoteException {
-        for (final ClientControl client : clients) {
-            final ChairRemote chair = client.searchEmptyChair(philosopherId);
-            if (chair != null) {
+        int startClient = (int) (clients.size() * Math.random());
+
+        if(clients.size() == 1){
+            startClient = 0;
+        }
+
+        for(int i =  startClient; i < clients.size();  i++){
+            final ChairRemote chair = clients.get(i).searchEmptyChair(philosopherId);
+            if(chair != null) {
                 return chair;
             }
         }
+
+        for(int j = 0; j < startClient; j++){
+            final ChairRemote chair = clients.get(j).searchEmptyChair(philosopherId);
+            if(chair != null) {
+                return chair;
+            }
+        }
+
         return null;
     }
 

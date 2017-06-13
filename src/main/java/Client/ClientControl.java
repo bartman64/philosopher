@@ -55,15 +55,14 @@ public interface ClientControl extends Remote {
      */
     int avgCalc() throws RemoteException;
 
-    int calcTotalAvg() throws RemoteException;
-
     /**
-     * This method calls the server to calculte the average consumption between all clients.
+     * Returns the average consumption of the other clients
      *
-     * @return the average consumption as int value of a client
+     * @return the average consumption of the other clients
      * @throws RemoteException Connection lost
      */
-    int getTotalAvg() throws RemoteException;
+    int calcTotalAvg() throws RemoteException;
+
 
     /**
      * This method initializes the table new for a client.

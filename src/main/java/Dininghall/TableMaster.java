@@ -56,7 +56,7 @@ public class TableMaster extends Thread implements Observer {
     public void update(Observable o, Object arg) {
         int avgConsumption = 0;
         try {
-            avgConsumption = client.getTotalAvg();
+            avgConsumption = client.calcTotalAvg();
             avgConsumption += this.calcAvgConsumption();
         } catch (RemoteException e) {
             e.printStackTrace();

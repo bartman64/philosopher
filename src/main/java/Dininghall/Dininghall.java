@@ -249,7 +249,12 @@ public class Dininghall {
     }
 
     public ChairRemote clientSearch(final int philosopherId) {
-        return client.searchForEmptySeat(philosopherId);
+        try {
+            return client.searchFreeChair(philosopherId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
@@ -265,7 +270,7 @@ public class Dininghall {
         try {
             chairId = chair.getId();
             if (isRemoteChair(chair)) {
-                //waitFork = (ForkRemote) registry.lookup("Fork" + chairId);
+                waitFork = (ForkRemote) registry.lookup("Fork" + chairId);
             } else {
                 waitFork = forks.get(chairId - startValue);
             }
